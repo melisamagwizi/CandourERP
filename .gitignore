@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+build
+.env
+.env.local
+*.log
+.DS_Store
+next-env.d.ts
+scripts/reset-db-access.log
+pg_hba.conf*.candour-bak
