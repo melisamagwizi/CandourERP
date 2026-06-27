@@ -13,7 +13,7 @@ export interface ModuleDef {
 export const MODULES: ModuleDef[] = [
   { slug: "crm",        name: "Customers",            desc: "Contacts & companies",   href: "/customers", status: "available" },
   { slug: "products",   name: "Products & Services",  desc: "Your price book",        href: "/products",  status: "available" },
-  { slug: "billing",    name: "Billing",              desc: "Invoices & payments",                        status: "soon" },
+  { slug: "billing",    name: "Billing",              desc: "Invoices & payments",    href: "/invoices",  status: "available" },
   { slug: "finance",    name: "Finance",              desc: "Cash, budgets, position",                    status: "soon" },
   { slug: "sales",      name: "Sales",                desc: "Leads & pipeline",                           status: "soon" },
   { slug: "projects",   name: "Projects",             desc: "Tasks & delivery",                           status: "soon" },

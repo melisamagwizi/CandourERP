@@ -51,6 +51,10 @@ async function main() {
         description: prod.name, qty: 1, unitPriceMinor: subtotal, taxCodeId: vat.id,
         lineTotalMinor: subtotal });
 
+    // INV-0001 is taken, so the next generated number starts at 2.
+    await tx.insert(s.sequences)
+      .values({ tenantId: tenant.id, docType: "invoice", prefix: "INV-", nextValue: 2 });
+
     console.log(`✓ seeded tenant ${tenant.slug} with invoice ${inv.number} ($${(inv.totalMinor / 100).toFixed(2)})`);
   });
 }

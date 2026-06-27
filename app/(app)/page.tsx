@@ -21,7 +21,7 @@ export default async function Dashboard() {
     { label: "Add your company details", done: true, href: undefined },
     { label: "Add your first customer", done: counts.customers > 0, href: "/customers" },
     { label: "Add your first product or service", done: counts.products > 0, href: "/products" },
-    { label: "Create your first invoice", done: counts.invoices > 0, href: undefined, soon: true },
+    { label: "Create your first invoice", done: counts.invoices > 0, href: "/invoices/new" },
   ];
   const completed = steps.filter((x) => x.done).length;
 
@@ -43,7 +43,6 @@ export default async function Dashboard() {
               background: step.done ? "#1d9e75" : "transparent", color: "#fff",
               fontSize: 12, textAlign: "center", lineHeight: "16px" }}>{step.done ? "✓" : ""}</span>
             <span style={{ flex: 1, fontSize: 14, color: step.done ? "#5f6b7a" : "#1f2933" }}>{step.label}</span>
-            {step.soon && <span style={pill("#888780", "#f1efe8")}>soon</span>}
             {step.href && !step.done && <Link href={step.href} style={{ fontSize: 13, color: "#185fa5" }}>Start →</Link>}
           </div>
         ))}

@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { requireAuth } from "@/auth/current";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
+import { createInvoiceFor } from "./billing";
 
 export async function createCustomer(formData: FormData) {
   const { tenantId } = await requireAuth();
@@ -36,4 +38,17 @@ export async function createProduct(formData: FormData) {
   });
   revalidatePath("/products");
   revalidatePath("/");
+}
+
+export async function createInvoice(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const accountId = String(formData.get("accountId") ?? "");
+  let lines: { productId: string; qty: number }[] = [];
+  try { lines = JSON.parse(String(formData.get("lines") ?? "[]")); } catch {}
+  if (!accountId || lines.length === 0) return;
+
+  await createInvoiceFor(tenantId, accountId, lines);
+  revalidatePath("/invoices");
+  revalidatePath("/");
+  redirect("/invoices");
 }
