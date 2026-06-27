@@ -11,10 +11,12 @@
     "db:migrate": "tsx src/db/migrate.ts",
     "db:rls": "tsx src/db/apply-rls.ts",
     "db:seed": "tsx src/db/seed.ts",
+    "db:setpw": "tsx src/db/set-password.ts",
     "db:setup": "npm run db:migrate && npm run db:rls && npm run db:seed",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.36.4",
     "next": "^15.1.6",
     "postgres": "^3.4.5",
@@ -23,6 +25,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.7",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",

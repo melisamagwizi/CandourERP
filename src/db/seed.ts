@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { db, withTenant, client } from "./index";
 import * as s from "./schema";
+import { hashPassword } from "../auth/password";
 
 // Minimal demo data: one tenant with an owner, a tax code, a customer,
 // a price-book item, and a draft invoice — the cash loop end to end.
@@ -10,7 +11,8 @@ async function main() {
     .returning();
 
   const [user] = await db.insert(s.users)
-    .values({ email: "owner@demo.test", name: "Thandi" })
+    .values({ email: "owner@demo.test", name: "Thandi",
+      passwordHash: await hashPassword("candour123") })
     .returning();
 
   await withTenant(tenant.id, async (tx) => {

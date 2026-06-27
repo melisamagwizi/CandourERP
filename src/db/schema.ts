@@ -25,7 +25,19 @@ export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
+  passwordHash: text("password_hash"),
   ...ts,
+});
+
+// Server-side sessions. Part of the identity layer, so NOT under tenant
+// RLS — it is looked up by token before any tenant context exists.
+export const sessions = pgTable("sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  token: text("token").notNull().unique(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const roles = pgTable("roles", {
@@ -161,6 +173,6 @@ export const payments = pgTable("payments", {
 
 // Tables that carry tenant_id and must have RLS enabled (used by apply-rls).
 export const TENANT_TABLES = [
-  "roles", "memberships", "tax_codes", "sequences", "audit_events",
+  "roles", "tax_codes", "sequences", "audit_events",
   "accounts", "contacts", "products", "invoices", "invoice_lines", "payments",
 ] as const;
