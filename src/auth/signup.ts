@@ -21,6 +21,10 @@ export async function signup(_prev: SignupState, formData: FormData): Promise<Si
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const currency = String(formData.get("currency") ?? "USD").trim().toUpperCase() || "USD";
+  const industry = String(formData.get("industry") ?? "").trim() || null;
+  const itemName = String(formData.get("itemName") ?? "").trim();
+  const itemType = String(formData.get("itemType")) === "product" ? "product" : "service";
+  const itemPrice = Math.round((parseFloat(String(formData.get("itemPrice") ?? "0")) || 0) * 100);
 
   if (!company || !name || !email || password.length < 6) {
     return { error: "Fill in every field; password must be at least 6 characters." };
@@ -31,14 +35,14 @@ export async function signup(_prev: SignupState, formData: FormData): Promise<Si
 
   // 1. The company becomes a tenant (no RLS on tenants/users — identity layer).
   const [tenant] = await db.insert(s.tenants)
-    .values({ name: company, slug: slugify(company), baseCurrency: currency })
+    .values({ name: company, slug: slugify(company), baseCurrency: currency, industry })
     .returning();
 
   const [user] = await db.insert(s.users)
     .values({ email, name, passwordHash: await hashPassword(password) })
     .returning();
 
-  // 2. Seed the tenant's defaults inside its own RLS context.
+  // 2. Seed the tenant's defaults (and optional first item) inside its RLS context.
   const roleId = await withTenant(tenant.id, async (tx) => {
     const [role] = await tx.insert(s.roles)
       .values({ tenantId: tenant.id, name: "Owner", isSystem: true }).returning();
@@ -47,6 +51,12 @@ export async function signup(_prev: SignupState, formData: FormData): Promise<Si
       .values({ tenantId: tenant.id, name: "No tax", rateBps: 0, isDefault: true });
     await tx.insert(s.sequences)
       .values({ tenantId: tenant.id, docType: "invoice", prefix: "INV-", nextValue: 1 });
+    if (itemName) {
+      await tx.insert(s.products).values({
+        tenantId: tenant.id, code: "ITEM-1", name: itemName, type: itemType,
+        unitPriceMinor: itemPrice, currency,
+      });
+    }
     return role.id;
   });
 
