@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { login, type LoginState } from "@/auth/actions";
 
@@ -36,6 +37,10 @@ export default function LoginPage() {
           {pending ? "Signing in…" : "Sign in"}
         </button>
       </form>
+
+      <p style={{ fontSize: 13, color: "#5f6b7a", marginTop: 20 }}>
+        New here? <Link href="/signup" style={{ color: "#185fa5" }}>Create your company</Link>
+      </p>
     </main>
   );
 }
