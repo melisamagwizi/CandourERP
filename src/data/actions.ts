@@ -19,7 +19,7 @@ export async function createCustomer(formData: FormData) {
     tx.insert(s.accounts).values({ tenantId, name, billingEmail, whatsapp }),
   );
   revalidatePath("/customers");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
 }
 
 export async function createProduct(formData: FormData) {
@@ -37,7 +37,7 @@ export async function createProduct(formData: FormData) {
     });
   });
   revalidatePath("/products");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
 }
 
 export async function createInvoice(formData: FormData) {
@@ -49,6 +49,6 @@ export async function createInvoice(formData: FormData) {
 
   await createInvoiceFor(tenantId, accountId, lines);
   revalidatePath("/invoices");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   redirect("/invoices");
 }

@@ -1,0 +1,162 @@
+.page {
+  min-height: 100vh;
+  background: #0c0a12;
+  color: #e9e6f0;
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+.page::before {
+  content: "";
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  width: 900px;
+  height: 700px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(168, 56, 221, 0.28), transparent 70%);
+  pointer-events: none;
+}
+
+/* promo bar */
+.promo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 9px 16px;
+  font-size: 13px;
+  background: linear-gradient(90deg, #2a1140, #3a1247);
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+.promoPill {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+.promoText { color: #cdbfe0; }
+.promoCta {
+  color: #f9a8d4;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* nav */
+.nav {
+  position: relative;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brandName { font-weight: 600; letter-spacing: 0.22em; font-size: 17px; }
+.navLinks { display: flex; gap: 22px; flex: 1; }
+.navLinks a { color: #b7aecb; text-decoration: none; font-size: 14px; }
+.navLinks a:hover { color: #fff; }
+.navRight { display: flex; align-items: center; gap: 16px; }
+.login { color: #cfc6e2; text-decoration: none; font-size: 14px; }
+
+.btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  box-shadow: 0 6px 24px rgba(236, 72, 153, 0.35);
+}
+.btn:hover { filter: brightness(1.08); }
+
+/* hero */
+.hero { position: relative; padding: 56px 24px 40px; }
+.heroPanel {
+  max-width: 980px;
+  margin: 0 auto;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  padding: 72px 32px 80px;
+}
+.eyebrow {
+  color: #f472b6;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  margin: 0 0 22px;
+}
+.headline {
+  font-size: clamp(40px, 7vw, 78px);
+  line-height: 1.02;
+  font-weight: 800;
+  margin: 0 0 22px;
+  letter-spacing: -0.02em;
+}
+.sub {
+  max-width: 600px;
+  margin: 0 auto 34px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #b3a9c7;
+}
+.ctaBig {
+  display: inline-block;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 15px 34px;
+  border-radius: 999px;
+  font-size: 17px;
+  box-shadow: 0 10px 40px rgba(236, 72, 153, 0.45);
+}
+.ctaBig:hover { filter: brightness(1.08); }
+.note { margin-top: 16px; font-size: 13px; color: #8a809e; letter-spacing: 0.02em; }
+
+/* features */
+.features { position: relative; max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+.featuresTitle { text-align: center; font-size: clamp(26px, 4vw, 38px); font-weight: 700; margin: 0 0 8px; }
+.featuresSub { text-align: center; color: #9d93b3; margin: 0 0 36px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 0.5px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  padding: 18px 20px;
+}
+.cardHead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.cardName { font-weight: 600; font-size: 15px; }
+.cardDesc { color: #9d93b3; font-size: 13px; }
+.badgeReady, .badgeSoon {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.badgeReady { background: rgba(236, 72, 153, 0.16); color: #f9a8d4; }
+.badgeSoon { background: rgba(255, 255, 255, 0.06); color: #8a809e; }
+
+.footer {
+  position: relative;
+  text-align: center;
+  padding: 28px;
+  color: #6f6685;
+  font-size: 13px;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.07);
+}

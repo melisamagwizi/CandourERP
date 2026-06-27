@@ -26,7 +26,7 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   if (!member) return { error: "This account has no active workspace." };
 
   await createSession(user.id, member.tenantId);
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function logout() {

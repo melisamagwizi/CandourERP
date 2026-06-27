@@ -14,9 +14,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header style={{ background: "#fff", borderBottom: "0.5px solid #d9e2ec" }}>
         <div style={{ maxWidth: 880, margin: "0 auto", padding: "12px 1.5rem",
           display: "flex", alignItems: "center", gap: 20 }}>
-          <Link href="/" style={{ fontWeight: 600, color: "#185fa5", textDecoration: "none" }}>Candour</Link>
+          <Link href="/dashboard" style={{ fontWeight: 600, color: "#185fa5", textDecoration: "none" }}>Candour</Link>
           <nav style={{ display: "flex", gap: 16, flex: 1, fontSize: 14 }}>
-            <Link href="/" style={navLink}>Home</Link>
+            <Link href="/dashboard" style={navLink}>Home</Link>
+            <Link href="/invoices" style={navLink}>Invoices</Link>
             <Link href="/customers" style={navLink}>Customers</Link>
             <Link href="/products" style={navLink}>Products</Link>
           </nav>
