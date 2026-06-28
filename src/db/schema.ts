@@ -173,6 +173,22 @@ export const payments = pgTable("payments", {
   paidAt: timestamp("paid_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/* -------------------------------- Sales ------------------------------- */
+
+export const dealStage = pgEnum("deal_stage", ["lead", "qualified", "proposal", "won", "lost"]);
+
+export const opportunities = pgTable("opportunities", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  accountId: uuid("account_id").references(() => accounts.id, { onDelete: "set null" }),
+  name: text("name").notNull(),
+  valueMinor: bigint("value_minor", { mode: "number" }).notNull().default(0),
+  currency: text("currency").notNull().default("USD"),
+  stage: dealStage("stage").notNull().default("lead"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => ({ byTenant: index("idx_deals_tenant").on(t.tenantId, t.stage) }));
+
 /* ------------------------------- Finance ------------------------------ */
 
 export const txnType = pgEnum("txn_type", ["inflow", "expense"]);
@@ -194,5 +210,5 @@ export const transactions = pgTable("transactions", {
 export const TENANT_TABLES = [
   "roles", "tax_codes", "sequences", "audit_events",
   "accounts", "contacts", "products", "invoices", "invoice_lines", "payments",
-  "transactions",
+  "transactions", "opportunities",
 ] as const;

@@ -41,7 +41,7 @@ export default async function InvoicesPage() {
         {rows.map((inv) => (
           <div key={inv.id} style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr auto auto auto",
             gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6" }}>
-            <span style={{ fontWeight: 500 }}>{inv.number}</span>
+            <Link href={`/invoices/${inv.id}`} style={{ fontWeight: 500, color: "#185fa5", textDecoration: "none" }}>{inv.number}</Link>
             <span style={{ fontSize: 13, color: "#5f6b7a" }}>{inv.customer ?? "—"}</span>
             <span style={{ fontSize: 12, color: statusColor[inv.status] ?? "#888", textTransform: "capitalize" }}>{inv.status}</span>
             <span style={{ fontWeight: 500, textAlign: "right" }}>${(inv.totalMinor / 100).toFixed(2)}</span>

@@ -36,6 +36,13 @@
       "when": 1782638859396,
       "tag": "0004_great_roland_deschain",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1782643553021,
+      "tag": "0005_fantastic_miss_america",
+      "breakpoints": true
     }
   ]
 }

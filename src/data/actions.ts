@@ -2,11 +2,60 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { requireAuth } from "@/auth/current";
 import { db, withTenant } from "@/db";
 import * as s from "@/db/schema";
-import { createInvoiceFor, markInvoicePaidFor } from "./billing";
+import { createInvoiceFor, createInvoiceFromDeal, markInvoicePaidFor } from "./billing";
+
+const STAGES = ["lead", "qualified", "proposal", "won", "lost"] as const;
+type Stage = (typeof STAGES)[number];
+
+export async function createDeal(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return;
+  const accountId = String(formData.get("accountId") ?? "") || null;
+  const valueMinor = Math.round((parseFloat(String(formData.get("value") ?? "0")) || 0) * 100);
+
+  await withTenant(tenantId, (tx) =>
+    tx.insert(s.opportunities).values({ tenantId, name, accountId, valueMinor, stage: "lead" }),
+  );
+  revalidatePath("/sales");
+}
+
+export async function moveDeal(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const dealId = String(formData.get("dealId") ?? "");
+  const stage = String(formData.get("stage") ?? "") as Stage;
+  if (!dealId || !STAGES.includes(stage)) return;
+
+  const newlyWon = await withTenant(tenantId, async (tx) => {
+    const [deal] = await tx.select().from(s.opportunities).where(eq(s.opportunities.id, dealId));
+    if (!deal) return false;
+    const won = stage === "won" && deal.stage !== "won";
+    await tx.update(s.opportunities).set({ stage, updatedAt: new Date() }).where(eq(s.opportunities.id, dealId));
+    return won;
+  });
+
+  // Winning a deal auto-creates a draft invoice.
+  if (newlyWon) await createInvoiceFromDeal(tenantId, dealId);
+  revalidatePath("/sales");
+  revalidatePath("/invoices");
+  revalidatePath("/dashboard");
+}
+
+export async function markInvoiceSent(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const invoiceId = String(formData.get("invoiceId") ?? "");
+  if (!invoiceId) return;
+  await withTenant(tenantId, (tx) =>
+    tx.update(s.invoices).set({ status: "sent" })
+      .where(and(eq(s.invoices.id, invoiceId), eq(s.invoices.status, "draft"))),
+  );
+  revalidatePath("/invoices");
+  revalidatePath(`/invoices/${invoiceId}`);
+}
 
 export async function markInvoicePaid(formData: FormData) {
   const { tenantId } = await requireAuth();
