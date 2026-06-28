@@ -46,7 +46,7 @@ export default function Landing() {
       <main>
         <section className={styles.hero}>
           <div className={styles.heroPanel}>
-            <p className={styles.eyebrow}>FREE 30-DAY TRIAL · NO CARD NEEDED</p>
+            <p className={styles.eyebrow}>FREE 7-DAY TRIAL · NO CARD NEEDED</p>
             <h1 className={styles.headline}>Run your whole business.<br />In one light app.</h1>
             <p className={styles.sub}>
               CRM, invoicing, cash flow and your team — captured in minutes, not spreadsheets.

@@ -65,5 +65,5 @@ export async function signup(_prev: SignupState, formData: FormData): Promise<Si
     .values({ tenantId: tenant.id, userId: user.id, roleId });
 
   await createSession(user.id, tenant.id);
-  redirect("/dashboard");
+  redirect("/start-trial");
 }

@@ -18,6 +18,7 @@ export const tenants = pgTable("tenants", {
   baseCurrency: text("base_currency").notNull().default("USD"),
   industry: text("industry"),
   plan: text("plan").notNull().default("trial"),
+  trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }),
   status: text("status").notNull().default("active"),
   ...ts,
 });

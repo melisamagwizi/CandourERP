@@ -4,9 +4,16 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { requireAuth } from "@/auth/current";
-import { withTenant } from "@/db";
+import { db, withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { createInvoiceFor } from "./billing";
+
+export async function startTrial() {
+  const { tenantId } = await requireAuth();
+  const trialEndsAt = new Date(Date.now() + 7 * 86400_000);
+  await db.update(s.tenants).set({ plan: "trialing", trialEndsAt }).where(eq(s.tenants.id, tenantId));
+  redirect("/dashboard");
+}
 
 export async function createCustomer(formData: FormData) {
   const { tenantId } = await requireAuth();
