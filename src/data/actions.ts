@@ -6,7 +6,32 @@ import { eq } from "drizzle-orm";
 import { requireAuth } from "@/auth/current";
 import { db, withTenant } from "@/db";
 import * as s from "@/db/schema";
-import { createInvoiceFor } from "./billing";
+import { createInvoiceFor, markInvoicePaidFor } from "./billing";
+
+export async function markInvoicePaid(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const invoiceId = String(formData.get("invoiceId") ?? "");
+  if (!invoiceId) return;
+
+  await markInvoicePaidFor(tenantId, invoiceId);
+  revalidatePath("/invoices");
+  revalidatePath("/finance");
+  revalidatePath("/dashboard");
+}
+
+export async function createExpense(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const amountMinor = Math.round((parseFloat(String(formData.get("amount") ?? "0")) || 0) * 100);
+  if (amountMinor <= 0) return;
+  const category = String(formData.get("category") ?? "").trim() || null;
+  const description = String(formData.get("description") ?? "").trim() || null;
+
+  await withTenant(tenantId, (tx) =>
+    tx.insert(s.transactions).values({ tenantId, type: "expense", amountMinor, category, description }),
+  );
+  revalidatePath("/finance");
+  revalidatePath("/dashboard");
+}
 
 export async function startTrial() {
   const { tenantId } = await requireAuth();

@@ -3,7 +3,7 @@ import { sql } from "drizzle-orm";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
-import { MODULES } from "@/modules";
+import { businessModules, platformModules, type ModuleDef } from "@/modules";
 
 export const dynamic = "force-dynamic";
 
@@ -49,9 +49,21 @@ export default async function Dashboard() {
       </section>
 
       <h2 style={{ fontSize: 16, margin: "1.5rem 0 0.75rem" }}>Modules</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
-        {MODULES.map((m) => {
-          const body = (
+      <ModuleGrid mods={businessModules} />
+
+      <h2 style={{ fontSize: 16, margin: "1.75rem 0 0.75rem" }}>Platform tools</h2>
+      <ModuleGrid mods={platformModules} />
+    </div>
+  );
+}
+
+function ModuleGrid({ mods }: { mods: ModuleDef[] }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
+      {mods.map((m) => {
+        const href = m.status === "available" && m.href ? m.href : `/modules/${m.slug}`;
+        return (
+          <Link key={m.slug} href={href} style={{ textDecoration: "none", color: "inherit" }}>
             <div style={{ ...card, margin: 0, height: "100%", opacity: m.status === "soon" ? 0.6 : 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <strong style={{ fontSize: 14 }}>{m.name}</strong>
@@ -61,11 +73,9 @@ export default async function Dashboard() {
               </div>
               <div style={{ fontSize: 13, color: "#5f6b7a", marginTop: 4 }}>{m.desc}</div>
             </div>
-          );
-          const href = m.status === "available" && m.href ? m.href : `/modules/${m.slug}`;
-          return <Link key={m.slug} href={href} style={{ textDecoration: "none", color: "inherit" }}>{body}</Link>;
-        })}
-      </div>
+          </Link>
+        );
+      })}
     </div>
   );
 }

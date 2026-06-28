@@ -18,6 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <nav style={{ display: "flex", gap: 16, flex: 1, fontSize: 14 }}>
             <Link href="/dashboard" style={navLink}>Home</Link>
             <Link href="/invoices" style={navLink}>Invoices</Link>
+            <Link href="/finance" style={navLink}>Finance</Link>
             <Link href="/customers" style={navLink}>Customers</Link>
             <Link href="/products" style={navLink}>Products</Link>
           </nav>

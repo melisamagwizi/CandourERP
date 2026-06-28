@@ -1,6 +1,30 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { withTenant } from "../db";
 import * as s from "../db/schema";
+
+/** Marks an invoice paid: records the outstanding payment and posts a cash inflow to Finance. */
+export async function markInvoicePaidFor(tenantId: string, invoiceId: string) {
+  return withTenant(tenantId, async (tx) => {
+    const [inv] = await tx.select().from(s.invoices).where(eq(s.invoices.id, invoiceId));
+    if (!inv || inv.status === "paid" || inv.status === "void") return null;
+
+    const [{ paid }] = await tx
+      .select({ paid: sql<number>`coalesce(sum(${s.payments.amountMinor}), 0)::bigint` })
+      .from(s.payments).where(eq(s.payments.invoiceId, invoiceId));
+    const outstanding = inv.totalMinor - Number(paid);
+
+    if (outstanding > 0) {
+      const [pay] = await tx.insert(s.payments)
+        .values({ tenantId, invoiceId, amountMinor: outstanding, method: "manual" }).returning();
+      await tx.insert(s.transactions).values({
+        tenantId, type: "inflow", amountMinor: outstanding, currency: inv.currency,
+        category: "Sales", description: `Invoice ${inv.number}`, paymentId: pay.id,
+      });
+    }
+    await tx.update(s.invoices).set({ status: "paid" }).where(eq(s.invoices.id, invoiceId));
+    return { number: inv.number, amountMinor: outstanding };
+  });
+}
 
 export type DraftLine = { productId: string; qty: number };
 

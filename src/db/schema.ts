@@ -173,8 +173,26 @@ export const payments = pgTable("payments", {
   paidAt: timestamp("paid_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/* ------------------------------- Finance ------------------------------ */
+
+export const txnType = pgEnum("txn_type", ["inflow", "expense"]);
+
+export const transactions = pgTable("transactions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  type: txnType("type").notNull(),
+  amountMinor: bigint("amount_minor", { mode: "number" }).notNull(),
+  currency: text("currency").notNull().default("USD"),
+  category: text("category"),
+  description: text("description"),
+  paymentId: uuid("payment_id").references(() => payments.id, { onDelete: "set null" }),
+  occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => ({ byTenant: index("idx_txn_tenant").on(t.tenantId, t.occurredAt) }));
+
 // Tables that carry tenant_id and must have RLS enabled (used by apply-rls).
 export const TENANT_TABLES = [
   "roles", "tax_codes", "sequences", "audit_events",
   "accounts", "contacts", "products", "invoices", "invoice_lines", "payments",
+  "transactions",
 ] as const;

@@ -29,6 +29,13 @@
       "when": 1782631002613,
       "tag": "0003_broad_black_crow",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1782638859396,
+      "tag": "0004_great_roland_deschain",
+      "breakpoints": true
     }
   ]
 }

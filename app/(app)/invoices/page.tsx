@@ -3,6 +3,7 @@ import { desc, eq } from "drizzle-orm";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
+import { markInvoicePaid } from "@/data/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -38,12 +39,19 @@ export default async function InvoicesPage() {
       <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, overflow: "hidden", marginTop: 16 }}>
         {rows.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#5f6b7a" }}>No invoices yet — create your first.</div>}
         {rows.map((inv) => (
-          <div key={inv.id} style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr auto auto",
+          <div key={inv.id} style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr auto auto auto",
             gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6" }}>
             <span style={{ fontWeight: 500 }}>{inv.number}</span>
             <span style={{ fontSize: 13, color: "#5f6b7a" }}>{inv.customer ?? "—"}</span>
             <span style={{ fontSize: 12, color: statusColor[inv.status] ?? "#888", textTransform: "capitalize" }}>{inv.status}</span>
             <span style={{ fontWeight: 500, textAlign: "right" }}>${(inv.totalMinor / 100).toFixed(2)}</span>
+            {inv.status !== "paid" && inv.status !== "void" ? (
+              <form action={markInvoicePaid}>
+                <input type="hidden" name="invoiceId" value={inv.id} />
+                <button type="submit" style={{ padding: "5px 11px", borderRadius: 8, border: "0.5px solid #1d9e75",
+                  background: "#e1f5ee", color: "#0f6e56", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Mark paid</button>
+              </form>
+            ) : <span style={{ fontSize: 12, color: "#0f6e56", textAlign: "right" }}>✓ paid</span>}
           </div>
         ))}
       </section>
