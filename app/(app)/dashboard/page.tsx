@@ -62,9 +62,8 @@ export default async function Dashboard() {
               <div style={{ fontSize: 13, color: "#5f6b7a", marginTop: 4 }}>{m.desc}</div>
             </div>
           );
-          return m.status === "available" && m.href
-            ? <Link key={m.slug} href={m.href} style={{ textDecoration: "none", color: "inherit" }}>{body}</Link>
-            : <div key={m.slug}>{body}</div>;
+          const href = m.status === "available" && m.href ? m.href : `/modules/${m.slug}`;
+          return <Link key={m.slug} href={href} style={{ textDecoration: "none", color: "inherit" }}>{body}</Link>;
         })}
       </div>
     </div>
