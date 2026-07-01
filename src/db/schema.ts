@@ -189,6 +189,54 @@ export const opportunities = pgTable("opportunities", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => ({ byTenant: index("idx_deals_tenant").on(t.tenantId, t.stage) }));
 
+/* --------------------- Projects & Operations -------------------------- */
+
+export const projectStatus = pgEnum("project_status", ["active", "on_hold", "done"]);
+
+export const projects = pgTable("projects", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  accountId: uuid("account_id").references(() => accounts.id, { onDelete: "set null" }),
+  name: text("name").notNull(),
+  status: projectStatus("status").notNull().default("active"),
+  budgetMinor: bigint("budget_minor", { mode: "number" }).notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const taskStatus = pgEnum("task_status", ["todo", "doing", "done"]);
+
+// Shared task engine — used by Projects (projectId set) and Operations (null).
+export const tasks = pgTable("tasks", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  status: taskStatus("status").notNull().default("todo"),
+  assignee: text("assignee"),
+  dueOn: date("due_on"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => ({ byTenant: index("idx_tasks_tenant").on(t.tenantId, t.projectId) }));
+
+export const objectives = pgTable("objectives", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  target: text("target"),
+  period: text("period"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const meetings = pgTable("meetings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  startsAt: timestamp("starts_at", { withTimezone: true }),
+  agenda: text("agenda"),
+  // Every meeting can link to a KPI/objective — strategy meets execution.
+  objectiveId: uuid("objective_id").references(() => objectives.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 /* ------------------------------- Finance ------------------------------ */
 
 export const txnType = pgEnum("txn_type", ["inflow", "expense"]);
@@ -211,4 +259,5 @@ export const TENANT_TABLES = [
   "roles", "tax_codes", "sequences", "audit_events",
   "accounts", "contacts", "products", "invoices", "invoice_lines", "payments",
   "transactions", "opportunities",
+  "projects", "tasks", "objectives", "meetings",
 ] as const;

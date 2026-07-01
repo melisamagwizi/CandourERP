@@ -43,6 +43,13 @@
       "when": 1782643553021,
       "tag": "0005_fantastic_miss_america",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1782897902993,
+      "tag": "0006_vengeful_black_bolt",
+      "breakpoints": true
     }
   ]
 }

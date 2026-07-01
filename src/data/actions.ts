@@ -82,6 +82,67 @@ export async function createExpense(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
+export async function createProject(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return;
+  const accountId = String(formData.get("accountId") ?? "") || null;
+  const budgetMinor = Math.round((parseFloat(String(formData.get("budget") ?? "0")) || 0) * 100);
+  await withTenant(tenantId, (tx) =>
+    tx.insert(s.projects).values({ tenantId, name, accountId, budgetMinor }),
+  );
+  revalidatePath("/projects");
+  revalidatePath("/dashboard");
+}
+
+export async function createTask(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const title = String(formData.get("title") ?? "").trim();
+  if (!title) return;
+  const projectId = String(formData.get("projectId") ?? "") || null;
+  const assignee = String(formData.get("assignee") ?? "").trim() || null;
+  const dueOn = String(formData.get("dueOn") ?? "") || null;
+  await withTenant(tenantId, (tx) =>
+    tx.insert(s.tasks).values({ tenantId, title, projectId, assignee, dueOn }),
+  );
+  revalidatePath("/operations");
+  if (projectId) revalidatePath(`/projects/${projectId}`);
+}
+
+export async function toggleTask(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const taskId = String(formData.get("taskId") ?? "");
+  if (!taskId) return;
+  const projectId = String(formData.get("projectId") ?? "");
+  await withTenant(tenantId, async (tx) => {
+    const [t] = await tx.select().from(s.tasks).where(eq(s.tasks.id, taskId));
+    if (!t) return;
+    await tx.update(s.tasks).set({ status: t.status === "done" ? "todo" : "done" }).where(eq(s.tasks.id, taskId));
+  });
+  revalidatePath("/operations");
+  if (projectId) revalidatePath(`/projects/${projectId}`);
+}
+
+export async function createObjective(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return;
+  const target = String(formData.get("target") ?? "").trim() || null;
+  await withTenant(tenantId, (tx) => tx.insert(s.objectives).values({ tenantId, name, target }));
+  revalidatePath("/operations");
+}
+
+export async function createMeeting(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const title = String(formData.get("title") ?? "").trim();
+  if (!title) return;
+  const startsRaw = String(formData.get("startsAt") ?? "");
+  const startsAt = startsRaw ? new Date(startsRaw) : null;
+  const objectiveId = String(formData.get("objectiveId") ?? "") || null;
+  await withTenant(tenantId, (tx) => tx.insert(s.meetings).values({ tenantId, title, startsAt, objectiveId }));
+  revalidatePath("/operations");
+}
+
 export async function startTrial() {
   const { tenantId } = await requireAuth();
   const trialEndsAt = new Date(Date.now() + 7 * 86400_000);
