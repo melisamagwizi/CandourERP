@@ -17,6 +17,8 @@ export const tenants = pgTable("tenants", {
   slug: text("slug").notNull().unique(),
   baseCurrency: text("base_currency").notNull().default("USD"),
   industry: text("industry"),
+  vision: text("vision"),
+  mission: text("mission"),
   plan: text("plan").notNull().default("trial"),
   trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }),
   status: text("status").notNull().default("active"),
@@ -129,6 +131,8 @@ export const products = pgTable("products", {
   costPriceMinor: bigint("cost_price_minor", { mode: "number" }),
   isStockable: boolean("is_stockable").notNull().default(false),
   isRecurring: boolean("is_recurring").notNull().default(false),
+  stockQty: integer("stock_qty").notNull().default(0),
+  reorderLevel: integer("reorder_level").notNull().default(0),
   ...ts,
 }, (t) => ({ uq: uniqueIndex("uq_product_code").on(t.tenantId, t.code) }));
 
@@ -217,12 +221,15 @@ export const tasks = pgTable("tasks", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => ({ byTenant: index("idx_tasks_tenant").on(t.tenantId, t.projectId) }));
 
+export const objectiveStatus = pgEnum("objective_status", ["on_track", "at_risk", "behind"]);
+
 export const objectives = pgTable("objectives", {
   id: uuid("id").primaryKey().defaultRandom(),
   tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   target: text("target"),
   period: text("period"),
+  status: objectiveStatus("status").notNull().default("on_track"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -254,10 +261,91 @@ export const transactions = pgTable("transactions", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => ({ byTenant: index("idx_txn_tenant").on(t.tenantId, t.occurredAt) }));
 
+/* ----------------------------- HR & Payroll --------------------------- */
+
+export const employeeStatus = pgEnum("employee_status", ["active", "on_leave", "exited"]);
+
+export const employees = pgTable("employees", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  email: text("email"),
+  title: text("title"),
+  department: text("department"),
+  startDate: date("start_date"),
+  status: employeeStatus("status").notNull().default("active"),
+  salaryMinor: bigint("salary_minor", { mode: "number" }).notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const leaveStatus = pgEnum("leave_status", ["pending", "approved", "rejected"]);
+
+export const leaveRequests = pgTable("leave_requests", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  employeeId: uuid("employee_id").notNull().references(() => employees.id, { onDelete: "cascade" }),
+  type: text("type").notNull().default("annual"),
+  startDate: date("start_date"),
+  endDate: date("end_date"),
+  days: integer("days").notNull().default(1),
+  status: leaveStatus("status").notNull().default("pending"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const payRunStatus = pgEnum("pay_run_status", ["draft", "approved"]);
+
+export const payRuns = pgTable("pay_runs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  period: text("period").notNull(),
+  status: payRunStatus("status").notNull().default("draft"),
+  grossMinor: bigint("gross_minor", { mode: "number" }).notNull().default(0),
+  netMinor: bigint("net_minor", { mode: "number" }).notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const payslips = pgTable("payslips", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  payRunId: uuid("pay_run_id").notNull().references(() => payRuns.id, { onDelete: "cascade" }),
+  employeeId: uuid("employee_id").references(() => employees.id, { onDelete: "set null" }),
+  employeeName: text("employee_name"),
+  grossMinor: bigint("gross_minor", { mode: "number" }).notNull(),
+  deductionsMinor: bigint("deductions_minor", { mode: "number" }).notNull(),
+  netMinor: bigint("net_minor", { mode: "number" }).notNull(),
+});
+
+/* ----------------------------- Stock & Assets ------------------------- */
+
+export const stockMovements = pgTable("stock_movements", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  productId: uuid("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+  delta: integer("delta").notNull(),
+  reason: text("reason"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const assetStatus = pgEnum("asset_status", ["in_use", "in_repair", "retired", "disposed"]);
+
+export const assets = pgTable("assets", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  category: text("category"),
+  serialNo: text("serial_no"),
+  status: assetStatus("status").notNull().default("in_use"),
+  assignedTo: text("assigned_to"),
+  acquisitionMinor: bigint("acquisition_minor", { mode: "number" }).notNull().default(0),
+  acquiredOn: date("acquired_on"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 // Tables that carry tenant_id and must have RLS enabled (used by apply-rls).
 export const TENANT_TABLES = [
   "roles", "tax_codes", "sequences", "audit_events",
   "accounts", "contacts", "products", "invoices", "invoice_lines", "payments",
   "transactions", "opportunities",
   "projects", "tasks", "objectives", "meetings",
+  "employees", "leave_requests", "pay_runs", "payslips", "stock_movements", "assets",
 ] as const;

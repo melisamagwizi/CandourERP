@@ -2,10 +2,120 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { requireAuth } from "@/auth/current";
 import { db, withTenant } from "@/db";
 import * as s from "@/db/schema";
+
+/* ------------------------------ Strategy ------------------------------ */
+export async function updateStrategy(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const vision = String(formData.get("vision") ?? "").trim() || null;
+  const mission = String(formData.get("mission") ?? "").trim() || null;
+  await db.update(s.tenants).set({ vision, mission }).where(eq(s.tenants.id, tenantId));
+  revalidatePath("/strategy");
+}
+
+export async function setObjectiveStatus(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const objectiveId = String(formData.get("objectiveId") ?? "");
+  const status = String(formData.get("status") ?? "") as "on_track" | "at_risk" | "behind";
+  if (!objectiveId || !["on_track", "at_risk", "behind"].includes(status)) return;
+  await withTenant(tenantId, (tx) => tx.update(s.objectives).set({ status }).where(eq(s.objectives.id, objectiveId)));
+  revalidatePath("/strategy");
+}
+
+/* -------------------------------- HRM --------------------------------- */
+export async function createEmployee(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return;
+  const email = String(formData.get("email") ?? "").trim() || null;
+  const title = String(formData.get("title") ?? "").trim() || null;
+  const department = String(formData.get("department") ?? "").trim() || null;
+  const salaryMinor = Math.round((parseFloat(String(formData.get("salary") ?? "0")) || 0) * 100);
+  await withTenant(tenantId, (tx) => tx.insert(s.employees).values({ tenantId, name, email, title, department, salaryMinor }));
+  revalidatePath("/hrm");
+  revalidatePath("/payroll");
+}
+
+export async function requestLeave(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const employeeId = String(formData.get("employeeId") ?? "");
+  if (!employeeId) return;
+  const type = String(formData.get("type") ?? "annual");
+  const startDate = String(formData.get("startDate") ?? "") || null;
+  const endDate = String(formData.get("endDate") ?? "") || null;
+  const days = Math.max(1, parseInt(String(formData.get("days") ?? "1")) || 1);
+  await withTenant(tenantId, (tx) => tx.insert(s.leaveRequests).values({ tenantId, employeeId, type, startDate, endDate, days }));
+  revalidatePath("/hrm");
+}
+
+export async function decideLeave(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const leaveId = String(formData.get("leaveId") ?? "");
+  const decision = String(formData.get("decision") ?? "") as "approved" | "rejected";
+  if (!leaveId || !["approved", "rejected"].includes(decision)) return;
+  await withTenant(tenantId, (tx) => tx.update(s.leaveRequests).set({ status: decision }).where(eq(s.leaveRequests.id, leaveId)));
+  revalidatePath("/hrm");
+}
+
+/* ------------------------------ Payroll ------------------------------- */
+export async function runPayroll(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const period = String(formData.get("period") ?? "").trim() || new Date().toISOString().slice(0, 7);
+  await withTenant(tenantId, async (tx) => {
+    const emps = await tx.select().from(s.employees).where(eq(s.employees.status, "active"));
+    if (emps.length === 0) return;
+    const [run] = await tx.insert(s.payRuns).values({ tenantId, period, status: "draft" }).returning();
+    let gross = 0, net = 0;
+    const slips = emps.map((e) => {
+      const g = e.salaryMinor;
+      const d = Math.round(g * 0.15); // placeholder estimated deductions (statutory packs to come)
+      gross += g; net += g - d;
+      return { tenantId, payRunId: run.id, employeeId: e.id, employeeName: e.name, grossMinor: g, deductionsMinor: d, netMinor: g - d };
+    });
+    await tx.insert(s.payslips).values(slips);
+    await tx.update(s.payRuns).set({ grossMinor: gross, netMinor: net }).where(eq(s.payRuns.id, run.id));
+  });
+  revalidatePath("/payroll");
+}
+
+/* -------------------------------- Stock ------------------------------- */
+export async function recordStockMovement(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const productId = String(formData.get("productId") ?? "");
+  const delta = parseInt(String(formData.get("delta") ?? "0")) || 0;
+  if (!productId || delta === 0) return;
+  const reason = String(formData.get("reason") ?? "").trim() || null;
+  await withTenant(tenantId, async (tx) => {
+    await tx.insert(s.stockMovements).values({ tenantId, productId, delta, reason });
+    await tx.update(s.products).set({ stockQty: sql`${s.products.stockQty} + ${delta}` }).where(eq(s.products.id, productId));
+  });
+  revalidatePath("/stock");
+}
+
+/* ------------------------------- Assets ------------------------------- */
+export async function createAsset(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return;
+  const category = String(formData.get("category") ?? "").trim() || null;
+  const serialNo = String(formData.get("serialNo") ?? "").trim() || null;
+  const assignedTo = String(formData.get("assignedTo") ?? "").trim() || null;
+  const acquisitionMinor = Math.round((parseFloat(String(formData.get("acquisition") ?? "0")) || 0) * 100);
+  await withTenant(tenantId, (tx) => tx.insert(s.assets).values({ tenantId, name, category, serialNo, assignedTo, acquisitionMinor }));
+  revalidatePath("/assets");
+}
+
+export async function updateAssetStatus(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const assetId = String(formData.get("assetId") ?? "");
+  const status = String(formData.get("status") ?? "") as "in_use" | "in_repair" | "retired" | "disposed";
+  if (!assetId || !["in_use", "in_repair", "retired", "disposed"].includes(status)) return;
+  await withTenant(tenantId, (tx) => tx.update(s.assets).set({ status }).where(eq(s.assets.id, assetId)));
+  revalidatePath("/assets");
+}
 import { createInvoiceFor, createInvoiceFromDeal, markInvoicePaidFor } from "./billing";
 
 const STAGES = ["lead", "qualified", "proposal", "won", "lost"] as const;
