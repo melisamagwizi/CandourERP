@@ -57,6 +57,13 @@
       "when": 1782912608422,
       "tag": "0007_woozy_thunderbolt_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1782987494427,
+      "tag": "0008_nosy_stephen_strange",
+      "breakpoints": true
     }
   ]
 }

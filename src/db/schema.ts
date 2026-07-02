@@ -17,6 +17,7 @@ export const tenants = pgTable("tenants", {
   slug: text("slug").notNull().unique(),
   baseCurrency: text("base_currency").notNull().default("USD"),
   industry: text("industry"),
+  goal: text("goal"),
   vision: text("vision"),
   mission: text("mission"),
   plan: text("plan").notNull().default("trial"),

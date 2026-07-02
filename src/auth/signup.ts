@@ -68,7 +68,7 @@ export async function signup(_prev: SignupState, formData: FormData): Promise<Si
   const strat = strategyFromDiscovery(company, tagline, goal, target);
 
   const [tenant] = await db.insert(s.tenants)
-    .values({ name: company, slug: slugify(company), baseCurrency: currency, industry, vision: strat.vision, mission: strat.mission })
+    .values({ name: company, slug: slugify(company), baseCurrency: currency, industry, goal, vision: strat.vision, mission: strat.mission })
     .returning();
 
   const [user] = await db.insert(s.users)
