@@ -1,14 +1,17 @@
 import Link from "next/link";
-import { sql } from "drizzle-orm";
-import { withTenant } from "@/db";
+import { eq, sql } from "drizzle-orm";
+import { db, withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
 import { businessModules, platformModules, type ModuleDef } from "@/modules";
+import ShareLink from "@/components/ShareLink";
 
 export const dynamic = "force-dynamic";
 
 export default async function Dashboard() {
   const session = await requireAuth();
+
+  const [tenant] = await db.select({ slug: s.tenants.slug }).from(s.tenants).where(eq(s.tenants.id, session.tenantId));
 
   const counts = await withTenant(session.tenantId, async (tx) => {
     const [a] = await tx.select({ n: sql<number>`count(*)::int` }).from(s.accounts);
@@ -29,6 +32,9 @@ export default async function Dashboard() {
     <div>
       <h1 style={{ margin: "0 0 4px", fontSize: 24 }}>Welcome to Candour</h1>
       <p style={{ color: "#5f6b7a", marginTop: 0 }}>Capture your base information, then grow into each module.</p>
+
+      <ShareLink slug={tenant?.slug ?? ""} />
+
 
       <section style={card}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
