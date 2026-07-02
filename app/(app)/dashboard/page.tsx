@@ -5,6 +5,7 @@ import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
 import { businessModules, platformModules, type ModuleDef } from "@/modules";
 import { money } from "@/ui";
+import { enableModule, disableModule } from "@/data/actions";
 import ShareLink from "@/components/ShareLink";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ const GOAL_TEXT: Record<string, string> = {
 
 export default async function Dashboard() {
   const session = await requireAuth();
-  const [tenant] = await db.select({ slug: s.tenants.slug, goal: s.tenants.goal }).from(s.tenants).where(eq(s.tenants.id, session.tenantId));
+  const [tenant] = await db.select({ slug: s.tenants.slug, goal: s.tenants.goal, enabledModules: s.tenants.enabledModules }).from(s.tenants).where(eq(s.tenants.id, session.tenantId));
   const goal = tenant?.goal ?? "customers";
 
   const d = await withTenant(session.tenantId, async (tx) => {
@@ -61,6 +62,10 @@ export default async function Dashboard() {
   ];
   const setupDone = steps.every((x) => x.done);
 
+  const enabledSlugs = tenant?.enabledModules ?? businessModules.map((m) => m.slug);
+  const yours = businessModules.filter((m) => enabledSlugs.includes(m.slug));
+  const available = businessModules.filter((m) => !enabledSlugs.includes(m.slug));
+
   return (
     <div>
       <p style={{ color: "#5f6b7a", margin: "0 0 4px", fontSize: 14 }}>Hi {session.name} · your goal is to {GOAL_TEXT[goal] ?? "grow your business"}</p>
@@ -99,8 +104,39 @@ export default async function Dashboard() {
 
       {goal !== "customers" && <div style={{ marginTop: 16 }}><ShareLink slug={tenant?.slug ?? ""} /></div>}
 
-      <h2 style={{ fontSize: 16, margin: "1.5rem 0 0.75rem" }}>Modules</h2>
-      <ModuleGrid mods={businessModules} />
+      <h2 style={{ fontSize: 16, margin: "1.5rem 0 0.75rem" }}>Your modules</h2>
+      <div style={grid}>
+        {yours.map((m) => {
+          const href = m.status === "available" && m.href ? m.href : `/modules/${m.slug}`;
+          return (
+            <div key={m.slug} style={{ ...card, margin: 0, opacity: m.status === "soon" ? 0.7 : 1 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Link href={href} style={{ fontSize: 14, fontWeight: 500, color: "#1f2933", textDecoration: "none" }}>{m.name}</Link>
+                <form action={disableModule}><input type="hidden" name="slug" value={m.slug} />
+                  <button type="submit" aria-label="Remove module" style={{ border: "none", background: "transparent", color: "#c0b9c9", cursor: "pointer", fontSize: 15, lineHeight: 1 }}>×</button></form>
+              </div>
+              <Link href={href} style={{ fontSize: 13, color: "#5f6b7a", textDecoration: "none", display: "block", marginTop: 4 }}>{m.desc}</Link>
+            </div>
+          );
+        })}
+      </div>
+
+      {available.length > 0 && (
+        <>
+          <h2 style={{ fontSize: 16, margin: "1.75rem 0 0.75rem" }}>Add modules <span style={{ fontSize: 13, color: "#8a809e", fontWeight: 400 }}>· switch on what you need, when you need it</span></h2>
+          <div style={grid}>
+            {available.map((m) => (
+              <div key={m.slug} style={{ ...card, margin: 0, background: "#f6f8fa" }}>
+                <div style={{ fontSize: 14, fontWeight: 500 }}>{m.name}</div>
+                <div style={{ fontSize: 13, color: "#5f6b7a", margin: "2px 0 8px" }}>{m.desc}</div>
+                <form action={enableModule}><input type="hidden" name="slug" value={m.slug} />
+                  <button type="submit" style={{ fontSize: 13, padding: "5px 12px", borderRadius: 8, border: "0.5px solid #185fa5", background: "#fff", color: "#185fa5", fontWeight: 500, cursor: "pointer" }}>+ Add</button></form>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       <h2 style={{ fontSize: 16, margin: "1.75rem 0 0.75rem" }}>Platform tools</h2>
       <ModuleGrid mods={platformModules} />
     </div>
@@ -129,4 +165,5 @@ function ModuleGrid({ mods }: { mods: ModuleDef[] }) {
 }
 
 const card: React.CSSProperties = { background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1.1rem 1.25rem", marginTop: 16 };
+const grid: React.CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 };
 const pill = (color: string, bg: string): React.CSSProperties => ({ fontSize: 11, padding: "2px 8px", borderRadius: 20, background: bg, color });

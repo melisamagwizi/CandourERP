@@ -253,6 +253,28 @@ export async function createMeeting(formData: FormData) {
   revalidatePath("/operations");
 }
 
+export async function enableModule(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const slug = String(formData.get("slug") ?? "");
+  if (!slug) return;
+  const [t] = await db.select({ mods: s.tenants.enabledModules }).from(s.tenants).where(eq(s.tenants.id, tenantId));
+  const current = t?.mods ?? [];
+  if (!current.includes(slug)) {
+    await db.update(s.tenants).set({ enabledModules: [...current, slug] }).where(eq(s.tenants.id, tenantId));
+  }
+  revalidatePath("/dashboard");
+}
+
+export async function disableModule(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const slug = String(formData.get("slug") ?? "");
+  if (!slug) return;
+  const [t] = await db.select({ mods: s.tenants.enabledModules }).from(s.tenants).where(eq(s.tenants.id, tenantId));
+  const current = t?.mods ?? [];
+  await db.update(s.tenants).set({ enabledModules: current.filter((m) => m !== slug) }).where(eq(s.tenants.id, tenantId));
+  revalidatePath("/dashboard");
+}
+
 export async function startTrial() {
   const { tenantId } = await requireAuth();
   const trialEndsAt = new Date(Date.now() + 7 * 86400_000);

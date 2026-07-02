@@ -58,6 +58,11 @@ export async function signup(_prev: SignupState, formData: FormData): Promise<Si
   const tagline = String(formData.get("tagline") ?? "").trim();
   const goal = String(formData.get("goal") ?? "").trim();
   const target = String(formData.get("target") ?? "").replace(/[^0-9]/g, "");
+  let enabledModules: string[] = ["crm", "billing", "finance"];
+  try {
+    const picked = JSON.parse(String(formData.get("modules") ?? "[]"));
+    if (Array.isArray(picked) && picked.length) enabledModules = picked.map(String);
+  } catch {}
 
   if (!company || !name || !email || password.length < 6) {
     return { error: "Fill in every field; password must be at least 6 characters." };
@@ -68,7 +73,7 @@ export async function signup(_prev: SignupState, formData: FormData): Promise<Si
   const strat = strategyFromDiscovery(company, tagline, goal, target);
 
   const [tenant] = await db.insert(s.tenants)
-    .values({ name: company, slug: slugify(company), baseCurrency: currency, industry, goal, vision: strat.vision, mission: strat.mission })
+    .values({ name: company, slug: slugify(company), baseCurrency: currency, industry, goal, enabledModules, vision: strat.vision, mission: strat.mission })
     .returning();
 
   const [user] = await db.insert(s.users)

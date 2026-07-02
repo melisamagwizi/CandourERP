@@ -20,6 +20,7 @@ export const tenants = pgTable("tenants", {
   goal: text("goal"),
   vision: text("vision"),
   mission: text("mission"),
+  enabledModules: text("enabled_modules").array(),
   plan: text("plan").notNull().default("trial"),
   trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }),
   status: text("status").notNull().default("active"),
