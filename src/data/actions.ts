@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { and, eq, lte, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, lte, sql } from "drizzle-orm";
 import { requireAuth } from "@/auth/current";
 import { db, withTenant } from "@/db";
 import * as s from "@/db/schema";
@@ -116,7 +116,49 @@ export async function updateAssetStatus(formData: FormData) {
   await withTenant(tenantId, (tx) => tx.update(s.assets).set({ status }).where(eq(s.assets.id, assetId)));
   revalidatePath("/assets");
 }
-import { createInvoiceFor, createInvoiceFromDeal, markInvoicePaidFor, recordPaymentFor } from "./billing";
+import { createInvoiceFor, createInvoiceFromDeal, createInvoiceAdhoc, markInvoicePaidFor, recordPaymentFor } from "./billing";
+
+export async function logTime(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const projectId = String(formData.get("projectId") ?? "");
+  if (!projectId) return;
+  const description = String(formData.get("description") ?? "").trim() || null;
+  const minutes = Math.round((parseFloat(String(formData.get("hours") ?? "0")) || 0) * 60);
+  if (minutes <= 0) return;
+  const rateMinor = Math.round((parseFloat(String(formData.get("rate") ?? "0")) || 0) * 100);
+  const billable = String(formData.get("billable") ?? "") === "on";
+  await withTenant(tenantId, (tx) =>
+    tx.insert(s.timeEntries).values({ tenantId, projectId, description, minutes, rateMinor, billable, occurredOn: new Date().toISOString().slice(0, 10) }),
+  );
+  revalidatePath(`/projects/${projectId}`);
+}
+
+export async function billProjectTime(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const projectId = String(formData.get("projectId") ?? "");
+  if (!projectId) return;
+
+  const ctx = await withTenant(tenantId, async (tx) => {
+    const [proj] = await tx.select().from(s.projects).where(eq(s.projects.id, projectId));
+    if (!proj?.accountId) return null;
+    const entries = await tx.select().from(s.timeEntries)
+      .where(and(eq(s.timeEntries.projectId, projectId), eq(s.timeEntries.billable, true), isNull(s.timeEntries.invoiceId)));
+    return { accountId: proj.accountId, entries };
+  });
+  if (!ctx || ctx.entries.length === 0) return;
+
+  const lines = ctx.entries.map((e) => ({
+    description: `${e.description ?? "Time"} (${(e.minutes / 60).toFixed(1)}h)`,
+    qty: 1, unitPriceMinor: Math.round((e.minutes / 60) * e.rateMinor),
+  }));
+  const inv = await createInvoiceAdhoc(tenantId, ctx.accountId, lines);
+  if (inv) {
+    await withTenant(tenantId, (tx) => tx.update(s.timeEntries).set({ invoiceId: inv.id }).where(inArray(s.timeEntries.id, ctx.entries.map((e) => e.id))));
+  }
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath("/invoices");
+  revalidatePath("/dashboard");
+}
 
 function advanceDate(dateStr: string, cadence: string) {
   const d = new Date(dateStr + "T00:00:00Z");

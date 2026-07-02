@@ -86,6 +86,32 @@ export async function createInvoiceFromDeal(tenantId: string, dealId: string) {
   });
 }
 
+/** Creates a draft invoice from free-text lines (e.g. billed timesheets), with default tax. */
+export async function createInvoiceAdhoc(tenantId: string, accountId: string, lines: { description: string; qty: number; unitPriceMinor: number }[]) {
+  if (!accountId || lines.length === 0) return null;
+  return withTenant(tenantId, async (tx) => {
+    const [tax] = await tx.select().from(s.taxCodes).where(eq(s.taxCodes.isDefault, true));
+    const rate = tax?.rateBps ?? 0;
+    const [tenant] = await tx.select().from(s.tenants).where(eq(s.tenants.id, tenantId));
+    let subtotal = 0, taxTotal = 0;
+    const rows = lines.map((l) => {
+      const lineTotal = l.unitPriceMinor * l.qty;
+      subtotal += lineTotal;
+      taxTotal += Math.round((lineTotal * rate) / 10000);
+      return { tenantId, invoiceId: "", description: l.description, qty: l.qty, unitPriceMinor: l.unitPriceMinor, taxCodeId: tax?.id, lineTotalMinor: lineTotal };
+    });
+    const number = await nextInvoiceNumber(tx, tenantId);
+    const [inv] = await tx.insert(s.invoices).values({
+      tenantId, accountId, number, status: "draft", currency: tenant?.baseCurrency ?? "USD",
+      issueDate: new Date().toISOString().slice(0, 10),
+      dueDate: new Date(Date.now() + 14 * 86400_000).toISOString().slice(0, 10),
+      subtotalMinor: subtotal, taxMinor: taxTotal, totalMinor: subtotal + taxTotal,
+    }).returning();
+    await tx.insert(s.invoiceLines).values(rows.map((r) => ({ ...r, invoiceId: inv.id })));
+    return { id: inv.id, number, totalMinor: subtotal + taxTotal };
+  });
+}
+
 /** Records a (possibly partial) payment: posts a cash inflow and sets status paid/partial. */
 export async function recordPaymentFor(tenantId: string, invoiceId: string, amountMinor: number) {
   if (amountMinor <= 0) return null;

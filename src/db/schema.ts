@@ -242,6 +242,21 @@ export const tasks = pgTable("tasks", {
 
 export const objectiveStatus = pgEnum("objective_status", ["on_track", "at_risk", "behind"]);
 
+// Timesheets — logged effort that can be billed to the project's client.
+export const timeEntries = pgTable("time_entries", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  taskId: uuid("task_id").references(() => tasks.id, { onDelete: "set null" }),
+  description: text("description"),
+  minutes: integer("minutes").notNull().default(0),
+  billable: boolean("billable").notNull().default(true),
+  rateMinor: bigint("rate_minor", { mode: "number" }).notNull().default(0),
+  occurredOn: date("occurred_on"),
+  invoiceId: uuid("invoice_id").references(() => invoices.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => ({ byProject: index("idx_time_project").on(t.tenantId, t.projectId) }));
+
 export const objectives = pgTable("objectives", {
   id: uuid("id").primaryKey().defaultRandom(),
   tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
@@ -367,5 +382,5 @@ export const TENANT_TABLES = [
   "transactions", "opportunities",
   "projects", "tasks", "objectives", "meetings",
   "employees", "leave_requests", "pay_runs", "payslips", "stock_movements", "assets",
-  "recurring_schedules",
+  "recurring_schedules", "time_entries",
 ] as const;

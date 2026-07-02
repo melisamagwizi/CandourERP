@@ -29,7 +29,7 @@ export default async function Dashboard() {
       followUp: sql<number>`count(*) filter (where ${s.opportunities.stage} not in ('won','lost') and ((${s.opportunities.nextFollowUpAt} is not null and ${s.opportunities.nextFollowUpAt} <= current_date) or (${s.opportunities.nextFollowUpAt} is null and ${s.opportunities.updatedAt} < now() - interval '7 days')))::int`,
     }).from(s.opportunities);
     const [inv] = await tx.select({ n: sql<number>`count(*)::int`, unpaidN: sql<number>`count(*) filter (where ${s.invoices.status} not in ('paid','void'))::int`, unpaid: sql<number>`coalesce(sum(${s.invoices.totalMinor}) filter (where ${s.invoices.status} not in ('paid','void')), 0)::bigint`, overdue: sql<number>`count(*) filter (where ${s.invoices.status} not in ('paid','void') and ${s.invoices.dueDate} is not null and ${s.invoices.dueDate} < current_date)::int` }).from(s.invoices);
-    const [tsk] = await tx.select({ open: sql<number>`count(*) filter (where ${s.tasks.status} <> 'done')::int` }).from(s.tasks);
+    const [tsk] = await tx.select({ open: sql<number>`count(*) filter (where ${s.tasks.status} <> 'done')::int`, overdue: sql<number>`count(*) filter (where ${s.tasks.status} <> 'done' and ${s.tasks.dueOn} is not null and ${s.tasks.dueOn} < current_date)::int` }).from(s.tasks);
     const [lv] = await tx.select({ pending: sql<number>`count(*) filter (where ${s.leaveRequests.status} = 'pending')::int` }).from(s.leaveRequests);
     const [obj] = await tx.select({ risk: sql<number>`count(*) filter (where ${s.objectives.status} <> 'on_track')::int` }).from(s.objectives);
     const [txn] = await tx.select({ inflow: sql<number>`coalesce(sum(${s.transactions.amountMinor}) filter (where ${s.transactions.type} = 'inflow' and ${s.transactions.occurredAt} >= date_trunc('month', now())), 0)::bigint` }).from(s.transactions);
@@ -37,7 +37,7 @@ export default async function Dashboard() {
       customers: Number(acc.n), products: Number(prod.n), lowStock: Number(prod.low),
       leads: Number(opp.leads), pipeline: Number(opp.pipeline), followUp: Number(opp.followUp),
       invoices: Number(inv.n), unpaidN: Number(inv.unpaidN), unpaid: Number(inv.unpaid), overdue: Number(inv.overdue),
-      openTasks: Number(tsk.open), pendingLeave: Number(lv.pending), atRisk: Number(obj.risk), inflow: Number(txn.inflow),
+      openTasks: Number(tsk.open), overdueTasks: Number(tsk.overdue), pendingLeave: Number(lv.pending), atRisk: Number(obj.risk), inflow: Number(txn.inflow),
     };
   });
 
@@ -57,6 +57,7 @@ export default async function Dashboard() {
     d.leads > 0 && { icon: "✨", text: `${d.leads} lead(s) in your pipeline`, href: "/sales" },
     d.pendingLeave > 0 && { icon: "🌿", text: `${d.pendingLeave} leave request(s) awaiting approval`, href: "/hrm" },
     d.lowStock > 0 && { icon: "📦", text: `${d.lowStock} product(s) low on stock`, href: "/stock" },
+    d.overdueTasks > 0 && { icon: "📌", text: `${d.overdueTasks} task(s) overdue`, href: "/operations" },
     d.openTasks > 0 && { icon: "✅", text: `${d.openTasks} open task(s)`, href: "/operations" },
     d.atRisk > 0 && { icon: "🎯", text: `${d.atRisk} KPI(s) need attention`, href: "/strategy" },
   ].filter(Boolean) as { icon: string; text: string; href: string }[];
