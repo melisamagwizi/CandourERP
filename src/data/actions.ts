@@ -61,22 +61,50 @@ export async function decideLeave(formData: FormData) {
 }
 
 /* ------------------------------ Payroll ------------------------------- */
+export async function createPayComponent(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return;
+  const kind = String(formData.get("kind")) === "earning" ? "earning" : "deduction";
+  const method = String(formData.get("method")) === "fixed" ? "fixed" : "percent";
+  const value = parseFloat(String(formData.get("value") ?? "0")) || 0;
+  const rateBps = method === "percent" ? Math.round(value * 100) : null;   // 15 -> 1500 bps
+  const amountMinor = method === "fixed" ? Math.round(value * 100) : null;
+  await withTenant(tenantId, (tx) => tx.insert(s.payComponents).values({ tenantId, name, kind, method, rateBps, amountMinor }));
+  revalidatePath("/payroll");
+}
+
+export async function deletePayComponent(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await withTenant(tenantId, (tx) => tx.delete(s.payComponents).where(eq(s.payComponents.id, id)));
+  revalidatePath("/payroll");
+}
+
 export async function runPayroll(formData: FormData) {
   const { tenantId } = await requireAuth();
   const period = String(formData.get("period") ?? "").trim() || new Date().toISOString().slice(0, 7);
   await withTenant(tenantId, async (tx) => {
     const emps = await tx.select().from(s.employees).where(eq(s.employees.status, "active"));
     if (emps.length === 0) return;
+    const comps = await tx.select().from(s.payComponents).where(eq(s.payComponents.active, true));
+    const earn = comps.filter((c) => c.kind === "earning");
+    const deduct = comps.filter((c) => c.kind === "deduction");
+    const apply = (list: typeof comps, base: number) =>
+      list.reduce((sum, c) => sum + (c.method === "percent" ? Math.round((base * (c.rateBps ?? 0)) / 10000) : (c.amountMinor ?? 0)), 0);
+
     const [run] = await tx.insert(s.payRuns).values({ tenantId, period, status: "draft" }).returning();
-    let gross = 0, net = 0;
+    let totalGross = 0, totalNet = 0;
     const slips = emps.map((e) => {
-      const g = e.salaryMinor;
-      const d = Math.round(g * 0.15); // placeholder estimated deductions (statutory packs to come)
-      gross += g; net += g - d;
-      return { tenantId, payRunId: run.id, employeeId: e.id, employeeName: e.name, grossMinor: g, deductionsMinor: d, netMinor: g - d };
+      const gross = e.salaryMinor + apply(earn, e.salaryMinor);
+      const deductions = apply(deduct, gross);
+      const net = gross - deductions;
+      totalGross += gross; totalNet += net;
+      return { tenantId, payRunId: run.id, employeeId: e.id, employeeName: e.name, grossMinor: gross, deductionsMinor: deductions, netMinor: net };
     });
     await tx.insert(s.payslips).values(slips);
-    await tx.update(s.payRuns).set({ grossMinor: gross, netMinor: net }).where(eq(s.payRuns.id, run.id));
+    await tx.update(s.payRuns).set({ grossMinor: totalGross, netMinor: totalNet }).where(eq(s.payRuns.id, run.id));
   });
   revalidatePath("/payroll");
 }

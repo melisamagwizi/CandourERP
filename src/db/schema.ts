@@ -338,6 +338,22 @@ export const payRuns = pgTable("pay_runs", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Configurable payroll rules — earnings and deductions (PAYE, pension, etc.).
+export const payComponentKind = pgEnum("pay_component_kind", ["earning", "deduction"]);
+export const payComponentMethod = pgEnum("pay_component_method", ["percent", "fixed"]);
+
+export const payComponents = pgTable("pay_components", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  kind: payComponentKind("kind").notNull().default("deduction"),
+  method: payComponentMethod("method").notNull().default("percent"),
+  rateBps: integer("rate_bps"),
+  amountMinor: bigint("amount_minor", { mode: "number" }),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const payslips = pgTable("payslips", {
   id: uuid("id").primaryKey().defaultRandom(),
   tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
@@ -382,5 +398,5 @@ export const TENANT_TABLES = [
   "transactions", "opportunities",
   "projects", "tasks", "objectives", "meetings",
   "employees", "leave_requests", "pay_runs", "payslips", "stock_movements", "assets",
-  "recurring_schedules", "time_entries",
+  "recurring_schedules", "time_entries", "pay_components",
 ] as const;

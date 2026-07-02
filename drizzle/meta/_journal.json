@@ -92,6 +92,13 @@
       "when": 1783013788749,
       "tag": "0012_aromatic_magus",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1783016496968,
+      "tag": "0013_damp_sprite",
+      "breakpoints": true
     }
   ]
 }
