@@ -54,6 +54,7 @@ export async function createInvoiceFor(tenantId: string, accountId: string, rawL
     const [inv] = await tx.insert(s.invoices).values({
       tenantId, accountId, number, status: "draft", currency,
       issueDate: new Date().toISOString().slice(0, 10),
+      dueDate: new Date(Date.now() + 14 * 86400_000).toISOString().slice(0, 10),
       subtotalMinor: subtotal, taxMinor: taxTotal, totalMinor: subtotal + taxTotal,
     }).returning();
     await tx.insert(s.invoiceLines).values(lineRows.map((r) => ({ ...r, invoiceId: inv.id })));
@@ -74,6 +75,7 @@ export async function createInvoiceFromDeal(tenantId: string, dealId: string) {
     const [inv] = await tx.insert(s.invoices).values({
       tenantId, accountId: deal.accountId, number, status: "draft", currency: deal.currency,
       issueDate: new Date().toISOString().slice(0, 10),
+      dueDate: new Date(Date.now() + 14 * 86400_000).toISOString().slice(0, 10),
       subtotalMinor: subtotal, taxMinor, totalMinor: subtotal + taxMinor,
     }).returning();
     await tx.insert(s.invoiceLines).values({
@@ -81,6 +83,28 @@ export async function createInvoiceFromDeal(tenantId: string, dealId: string) {
       unitPriceMinor: subtotal, taxCodeId: tax?.id, lineTotalMinor: subtotal,
     });
     return { id: inv.id, number };
+  });
+}
+
+/** Records a (possibly partial) payment: posts a cash inflow and sets status paid/partial. */
+export async function recordPaymentFor(tenantId: string, invoiceId: string, amountMinor: number) {
+  if (amountMinor <= 0) return null;
+  return withTenant(tenantId, async (tx) => {
+    const [inv] = await tx.select().from(s.invoices).where(eq(s.invoices.id, invoiceId));
+    if (!inv || inv.status === "void") return null;
+
+    const [pay] = await tx.insert(s.payments)
+      .values({ tenantId, invoiceId, amountMinor, method: "manual" }).returning();
+    await tx.insert(s.transactions).values({
+      tenantId, type: "inflow", amountMinor, currency: inv.currency,
+      category: "Sales", description: `Invoice ${inv.number}`, paymentId: pay.id,
+    });
+
+    const [{ paid }] = await tx.select({ paid: sql<number>`coalesce(sum(${s.payments.amountMinor}), 0)::bigint` })
+      .from(s.payments).where(eq(s.payments.invoiceId, invoiceId));
+    const status = Number(paid) >= inv.totalMinor ? "paid" : "partial";
+    await tx.update(s.invoices).set({ status }).where(eq(s.invoices.id, invoiceId));
+    return { status, paid: Number(paid), total: inv.totalMinor };
   });
 }
 

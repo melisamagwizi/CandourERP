@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, lte, sql } from "drizzle-orm";
 import { requireAuth } from "@/auth/current";
 import { db, withTenant } from "@/db";
 import * as s from "@/db/schema";
@@ -116,7 +116,54 @@ export async function updateAssetStatus(formData: FormData) {
   await withTenant(tenantId, (tx) => tx.update(s.assets).set({ status }).where(eq(s.assets.id, assetId)));
   revalidatePath("/assets");
 }
-import { createInvoiceFor, createInvoiceFromDeal, markInvoicePaidFor } from "./billing";
+import { createInvoiceFor, createInvoiceFromDeal, markInvoicePaidFor, recordPaymentFor } from "./billing";
+
+function advanceDate(dateStr: string, cadence: string) {
+  const d = new Date(dateStr + "T00:00:00Z");
+  d.setUTCMonth(d.getUTCMonth() + (cadence === "annual" ? 12 : cadence === "quarterly" ? 3 : 1));
+  return d.toISOString().slice(0, 10);
+}
+
+export async function createRecurring(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const accountId = String(formData.get("accountId") ?? "");
+  const productId = String(formData.get("productId") ?? "") || null;
+  const c = String(formData.get("cadence") ?? "monthly");
+  const cadence = (["monthly", "quarterly", "annual"].includes(c) ? c : "monthly") as "monthly" | "quarterly" | "annual";
+  if (!accountId || !productId) return;
+  await withTenant(tenantId, (tx) =>
+    tx.insert(s.recurringSchedules).values({ tenantId, accountId, productId, cadence, nextRunOn: new Date().toISOString().slice(0, 10) }),
+  );
+  revalidatePath("/invoices");
+}
+
+export async function runRecurring() {
+  const { tenantId } = await requireAuth();
+  const today = new Date().toISOString().slice(0, 10);
+  const due = await withTenant(tenantId, (tx) =>
+    tx.select().from(s.recurringSchedules).where(and(eq(s.recurringSchedules.active, true), lte(s.recurringSchedules.nextRunOn, today))),
+  );
+  for (const sch of due) {
+    if (!sch.productId) continue;
+    await createInvoiceFor(tenantId, sch.accountId, [{ productId: sch.productId, qty: sch.qty }]);
+    const next = advanceDate(sch.nextRunOn, sch.cadence);
+    await withTenant(tenantId, (tx) => tx.update(s.recurringSchedules).set({ nextRunOn: next }).where(eq(s.recurringSchedules.id, sch.id)));
+  }
+  revalidatePath("/invoices");
+  revalidatePath("/dashboard");
+}
+
+export async function recordPayment(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const invoiceId = String(formData.get("invoiceId") ?? "");
+  const amountMinor = Math.round((parseFloat(String(formData.get("amount") ?? "0")) || 0) * 100);
+  if (!invoiceId || amountMinor <= 0) return;
+  await recordPaymentFor(tenantId, invoiceId, amountMinor);
+  revalidatePath("/invoices");
+  revalidatePath(`/invoices/${invoiceId}`);
+  revalidatePath("/finance");
+  revalidatePath("/dashboard");
+}
 
 const STAGES = ["lead", "qualified", "proposal", "won", "lost"] as const;
 type Stage = (typeof STAGES)[number];

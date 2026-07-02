@@ -179,6 +179,21 @@ export const payments = pgTable("payments", {
   paidAt: timestamp("paid_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const recurringCadence = pgEnum("recurring_cadence", ["monthly", "quarterly", "annual"]);
+
+// Retainer / subscription schedules that auto-generate invoices.
+export const recurringSchedules = pgTable("recurring_schedules", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  accountId: uuid("account_id").notNull().references(() => accounts.id, { onDelete: "cascade" }),
+  productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
+  qty: integer("qty").notNull().default(1),
+  cadence: recurringCadence("cadence").notNull().default("monthly"),
+  nextRunOn: date("next_run_on").notNull(),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 /* -------------------------------- Sales ------------------------------- */
 
 export const dealStage = pgEnum("deal_stage", ["lead", "qualified", "proposal", "won", "lost"]);
@@ -352,4 +367,5 @@ export const TENANT_TABLES = [
   "transactions", "opportunities",
   "projects", "tasks", "objectives", "meetings",
   "employees", "leave_requests", "pay_runs", "payslips", "stock_movements", "assets",
+  "recurring_schedules",
 ] as const;

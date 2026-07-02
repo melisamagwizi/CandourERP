@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
-import { markInvoiceSent, markInvoicePaid } from "@/data/actions";
+import { markInvoiceSent, markInvoicePaid, recordPayment } from "@/data/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -19,10 +19,12 @@ export default async function InvoiceDetail({ params }: { params: Promise<{ id: 
     if (!inv) return null;
     const [acct] = await tx.select().from(s.accounts).where(eq(s.accounts.id, inv.accountId));
     const lines = await tx.select().from(s.invoiceLines).where(eq(s.invoiceLines.invoiceId, id));
-    return { inv, acct, lines };
+    const [{ paid }] = await tx.select({ paid: sql<number>`coalesce(sum(${s.payments.amountMinor}),0)::bigint` }).from(s.payments).where(eq(s.payments.invoiceId, id));
+    return { inv, acct, lines, paid: Number(paid) };
   });
   if (!data) notFound();
-  const { inv, acct, lines } = data;
+  const { inv, acct, lines, paid } = data;
+  const outstanding = inv.totalMinor - paid;
 
   const msg = `Hi ${acct?.name ?? "there"}, here is invoice ${inv.number} for ${money(inv.totalMinor)}. Thank you!`;
   const waDigits = (acct?.whatsapp ?? "").replace(/\D/g, "");
@@ -53,6 +55,8 @@ export default async function InvoiceDetail({ params }: { params: Promise<{ id: 
           <Row label="Subtotal" value={money(inv.subtotalMinor)} />
           <Row label="Tax" value={money(inv.taxMinor)} />
           <Row label="Total" value={money(inv.totalMinor)} bold />
+          {paid > 0 && <Row label="Paid" value={"− " + money(paid)} />}
+          {paid > 0 && outstanding > 0 && <Row label="Outstanding" value={money(outstanding)} bold />}
         </div>
       </section>
 
@@ -69,6 +73,15 @@ export default async function InvoiceDetail({ params }: { params: Promise<{ id: 
             <button type="submit" style={{ ...btn, borderColor: "#185fa5", color: "#fff", background: "#185fa5" }}>Mark paid</button></form>
         )}
       </div>
+
+      {inv.status !== "paid" && inv.status !== "void" && (
+        <form action={recordPayment} style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 12 }}>
+          <input type="hidden" name="invoiceId" value={inv.id} />
+          <span style={{ fontSize: 13, color: "#5f6b7a" }}>Record a payment:</span>
+          <input name="amount" type="number" step="0.01" min="0" defaultValue={(outstanding / 100).toFixed(2)} style={{ ...btn, width: 110, cursor: "text" }} />
+          <button type="submit" style={btn}>Record</button>
+        </form>
+      )}
 
       <p style={{ fontSize: 12, color: "#8a809e", marginTop: 14 }}>
         WhatsApp and email open with the message pre-filled, sent from your own account. Automated server-side
