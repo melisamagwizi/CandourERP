@@ -129,9 +129,21 @@ export async function createDeal(formData: FormData) {
   const valueMinor = Math.round((parseFloat(String(formData.get("value") ?? "0")) || 0) * 100);
 
   await withTenant(tenantId, (tx) =>
-    tx.insert(s.opportunities).values({ tenantId, name, accountId, valueMinor, stage: "lead" }),
+    tx.insert(s.opportunities).values({ tenantId, name, accountId, valueMinor, stage: "lead", source: "manual" }),
   );
   revalidatePath("/sales");
+}
+
+export async function setFollowUp(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const dealId = String(formData.get("dealId") ?? "");
+  const date = String(formData.get("date") ?? "") || null;
+  if (!dealId) return;
+  await withTenant(tenantId, (tx) =>
+    tx.update(s.opportunities).set({ nextFollowUpAt: date, updatedAt: new Date() }).where(eq(s.opportunities.id, dealId)),
+  );
+  revalidatePath("/sales");
+  revalidatePath("/dashboard");
 }
 
 export async function moveDeal(formData: FormData) {
@@ -145,6 +157,10 @@ export async function moveDeal(formData: FormData) {
     if (!deal) return false;
     const won = stage === "won" && deal.stage !== "won";
     await tx.update(s.opportunities).set({ stage, updatedAt: new Date() }).where(eq(s.opportunities.id, dealId));
+    // Rule: winning a deal converts the lead's account into a customer.
+    if (won && deal.accountId) {
+      await tx.update(s.accounts).set({ isCustomer: true }).where(eq(s.accounts.id, deal.accountId));
+    }
     return won;
   });
 

@@ -44,10 +44,13 @@ export async function captureLead(_prev: LeadState, formData: FormData): Promise
         valueMinor = prods.find((p) => p.name === interest)?.unitPriceMinor ?? 0;
       }
       const base = interest ? `Enquiry: ${interest}` : "Website enquiry";
+      // Rule: new sign-ups come in as storefront leads with a 2-day follow-up.
+      const followUp = new Date(Date.now() + 2 * 86400_000).toISOString().slice(0, 10);
       await tx.insert(s.opportunities).values({
         tenantId: tenant.id, accountId: acct.id,
         name: message ? `${base} — ${message.slice(0, 80)}` : base,
         valueMinor, currency: tenant.baseCurrency, stage: "lead",
+        source: "storefront", nextFollowUpAt: followUp,
       });
     });
   } catch {

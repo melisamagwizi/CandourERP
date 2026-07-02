@@ -191,6 +191,8 @@ export const opportunities = pgTable("opportunities", {
   valueMinor: bigint("value_minor", { mode: "number" }).notNull().default(0),
   currency: text("currency").notNull().default("USD"),
   stage: dealStage("stage").notNull().default("lead"),
+  source: text("source").notNull().default("manual"),
+  nextFollowUpAt: date("next_follow_up_at"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => ({ byTenant: index("idx_deals_tenant").on(t.tenantId, t.stage) }));

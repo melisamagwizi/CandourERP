@@ -23,7 +23,11 @@ export default async function Dashboard() {
   const d = await withTenant(session.tenantId, async (tx) => {
     const [acc] = await tx.select({ n: sql<number>`count(*)::int` }).from(s.accounts);
     const [prod] = await tx.select({ n: sql<number>`count(*)::int`, low: sql<number>`count(*) filter (where ${s.products.isStockable} and ${s.products.reorderLevel} > 0 and ${s.products.stockQty} <= ${s.products.reorderLevel})::int` }).from(s.products);
-    const [opp] = await tx.select({ leads: sql<number>`count(*) filter (where ${s.opportunities.stage} = 'lead')::int`, pipeline: sql<number>`coalesce(sum(${s.opportunities.valueMinor}) filter (where ${s.opportunities.stage} not in ('won','lost')), 0)::bigint` }).from(s.opportunities);
+    const [opp] = await tx.select({
+      leads: sql<number>`count(*) filter (where ${s.opportunities.stage} = 'lead')::int`,
+      pipeline: sql<number>`coalesce(sum(${s.opportunities.valueMinor}) filter (where ${s.opportunities.stage} not in ('won','lost')), 0)::bigint`,
+      followUp: sql<number>`count(*) filter (where ${s.opportunities.stage} not in ('won','lost') and ((${s.opportunities.nextFollowUpAt} is not null and ${s.opportunities.nextFollowUpAt} <= current_date) or (${s.opportunities.nextFollowUpAt} is null and ${s.opportunities.updatedAt} < now() - interval '7 days')))::int`,
+    }).from(s.opportunities);
     const [inv] = await tx.select({ n: sql<number>`count(*)::int`, unpaidN: sql<number>`count(*) filter (where ${s.invoices.status} not in ('paid','void'))::int`, unpaid: sql<number>`coalesce(sum(${s.invoices.totalMinor}) filter (where ${s.invoices.status} not in ('paid','void')), 0)::bigint` }).from(s.invoices);
     const [tsk] = await tx.select({ open: sql<number>`count(*) filter (where ${s.tasks.status} <> 'done')::int` }).from(s.tasks);
     const [lv] = await tx.select({ pending: sql<number>`count(*) filter (where ${s.leaveRequests.status} = 'pending')::int` }).from(s.leaveRequests);
@@ -31,7 +35,7 @@ export default async function Dashboard() {
     const [txn] = await tx.select({ inflow: sql<number>`coalesce(sum(${s.transactions.amountMinor}) filter (where ${s.transactions.type} = 'inflow' and ${s.transactions.occurredAt} >= date_trunc('month', now())), 0)::bigint` }).from(s.transactions);
     return {
       customers: Number(acc.n), products: Number(prod.n), lowStock: Number(prod.low),
-      leads: Number(opp.leads), pipeline: Number(opp.pipeline),
+      leads: Number(opp.leads), pipeline: Number(opp.pipeline), followUp: Number(opp.followUp),
       invoices: Number(inv.n), unpaidN: Number(inv.unpaidN), unpaid: Number(inv.unpaid),
       openTasks: Number(tsk.open), pendingLeave: Number(lv.pending), atRisk: Number(obj.risk), inflow: Number(txn.inflow),
     };
@@ -48,7 +52,8 @@ export default async function Dashboard() {
 
   const attention = [
     d.unpaidN > 0 && { icon: "💰", text: `You're owed ${money(d.unpaid)} across ${d.unpaidN} invoice(s)`, href: "/invoices" },
-    d.leads > 0 && { icon: "✨", text: `${d.leads} new lead(s) to follow up`, href: "/sales" },
+    d.followUp > 0 && { icon: "⏰", text: `${d.followUp} lead(s) need follow-up`, href: "/sales" },
+    d.leads > 0 && { icon: "✨", text: `${d.leads} lead(s) in your pipeline`, href: "/sales" },
     d.pendingLeave > 0 && { icon: "🌿", text: `${d.pendingLeave} leave request(s) awaiting approval`, href: "/hrm" },
     d.lowStock > 0 && { icon: "📦", text: `${d.lowStock} product(s) low on stock`, href: "/stock" },
     d.openTasks > 0 && { icon: "✅", text: `${d.openTasks} open task(s)`, href: "/operations" },
