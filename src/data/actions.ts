@@ -82,12 +82,25 @@ export async function deletePayComponent(formData: FormData) {
   revalidatePath("/payroll");
 }
 
+export async function applyZimbabweSetup() {
+  const { tenantId } = await requireAuth();
+  await db.update(s.tenants).set({ payrollRegion: "ZW" }).where(eq(s.tenants.id, tenantId));
+  revalidatePath("/payroll");
+}
+
+export async function clearPayrollRegion() {
+  const { tenantId } = await requireAuth();
+  await db.update(s.tenants).set({ payrollRegion: null }).where(eq(s.tenants.id, tenantId));
+  revalidatePath("/payroll");
+}
+
 export async function runPayroll(formData: FormData) {
   const { tenantId } = await requireAuth();
   const period = String(formData.get("period") ?? "").trim() || new Date().toISOString().slice(0, 7);
   await withTenant(tenantId, async (tx) => {
     const emps = await tx.select().from(s.employees).where(eq(s.employees.status, "active"));
     if (emps.length === 0) return;
+    const [tenant] = await tx.select().from(s.tenants).where(eq(s.tenants.id, tenantId));
     const comps = await tx.select().from(s.payComponents).where(eq(s.payComponents.active, true));
     const earn = comps.filter((c) => c.kind === "earning");
     const deduct = comps.filter((c) => c.kind === "deduction");
@@ -98,7 +111,8 @@ export async function runPayroll(formData: FormData) {
     let totalGross = 0, totalNet = 0;
     const slips = emps.map((e) => {
       const gross = e.salaryMinor + apply(earn, e.salaryMinor);
-      const deductions = apply(deduct, gross);
+      let deductions = apply(deduct, gross);
+      if (tenant?.payrollRegion === "ZW") deductions += computeZimStatutory(gross).total; // PAYE + AIDS levy + NSSA
       const net = gross - deductions;
       totalGross += gross; totalNet += net;
       return { tenantId, payRunId: run.id, employeeId: e.id, employeeName: e.name, grossMinor: gross, deductionsMinor: deductions, netMinor: net };
@@ -145,6 +159,7 @@ export async function updateAssetStatus(formData: FormData) {
   revalidatePath("/assets");
 }
 import { createInvoiceFor, createInvoiceFromDeal, createInvoiceAdhoc, markInvoicePaidFor, recordPaymentFor } from "./billing";
+import { computeZimStatutory } from "./payroll-zw";
 
 export async function logTime(formData: FormData) {
   const { tenantId } = await requireAuth();

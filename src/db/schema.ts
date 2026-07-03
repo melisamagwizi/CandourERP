@@ -21,6 +21,7 @@ export const tenants = pgTable("tenants", {
   vision: text("vision"),
   mission: text("mission"),
   enabledModules: text("enabled_modules").array(),
+  payrollRegion: text("payroll_region"),
   plan: text("plan").notNull().default("trial"),
   trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }),
   status: text("status").notNull().default("active"),

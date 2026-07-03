@@ -2,7 +2,8 @@ import { desc, eq } from "drizzle-orm";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
-import { runPayroll, createPayComponent, deletePayComponent } from "@/data/actions";
+import { runPayroll, createPayComponent, deletePayComponent, applyZimbabweSetup, clearPayrollRegion } from "@/data/actions";
+import { db } from "@/db";
 import { input, card, primaryBtn, money } from "@/ui";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,8 @@ export default async function PayrollPage() {
     return { runs, activeCount: active.length, slipsByRun, comps };
   });
 
+  const [tenant] = await db.select().from(s.tenants).where(eq(s.tenants.id, session.tenantId));
+  const isZW = tenant?.payrollRegion === "ZW";
   const thisMonth = new Date().toISOString().slice(0, 7);
 
   return (
@@ -33,6 +36,24 @@ export default async function PayrollPage() {
         <button type="submit" style={primaryBtn} disabled={activeCount === 0}>Run payroll ({activeCount} active)</button>
         <span style={{ fontSize: 12, color: "#8a809e" }}>Pay is calculated from the components below.</span>
       </form>
+
+      <section style={{ ...card, marginBottom: 16, background: isZW ? "#e1f5ee" : "#fff", border: isZW ? "0.5px solid #9fe1cb" : "0.5px solid #d9e2ec" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+          <div>
+            <strong style={{ fontSize: 15 }}>Statutory pack: {isZW ? "Zimbabwe 🇿🇼" : "None"}</strong>
+            <div style={{ fontSize: 12, color: "#5f6b7a", marginTop: 2 }}>
+              {isZW
+                ? "PAYE (banded) + AIDS levy 3% + NSSA 4.5% are applied automatically. Illustrative rates — verify against current ZIMRA tables."
+                : "Apply your country's statutory deductions in one click."}
+            </div>
+          </div>
+          <form action={isZW ? clearPayrollRegion : applyZimbabweSetup}>
+            <button type="submit" style={{ padding: "8px 14px", borderRadius: 8, border: "0.5px solid " + (isZW ? "#e2b4b4" : "#185fa5"), background: "#fff", color: isZW ? "#a32d2d" : "#185fa5", fontWeight: 500, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
+              {isZW ? "Remove" : "Apply Zimbabwe setup"}
+            </button>
+          </form>
+        </div>
+      </section>
 
       <section style={{ ...card, marginBottom: 16 }}>
         <strong style={{ fontSize: 15 }}>Deductions &amp; earnings</strong>
