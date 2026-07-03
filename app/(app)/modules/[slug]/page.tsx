@@ -34,7 +34,7 @@ export default async function ModulePreview({ params }: { params: Promise<{ slug
         </ul>
       </section>
 
-      <p style={{ fontSize: 13, color: "#8a809e", marginTop: 16 }}>
+      <p style={{ fontSize: 13, color: "#6f6685", marginTop: 16 }}>
         This module is part of the Candour roadmap and will switch on automatically when it&apos;s ready.
         In the meantime, you can keep capturing your{" "}
         <Link href="/customers" style={{ color: "#185fa5" }}>customers</Link>,{" "}

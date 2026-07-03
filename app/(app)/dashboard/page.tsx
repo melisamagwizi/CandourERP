@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SubmitButton from "@/components/SubmitButton";
 import { eq, sql } from "drizzle-orm";
 import { db, withTenant } from "@/db";
 import * as s from "@/db/schema";
@@ -120,7 +121,7 @@ export default async function Dashboard() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Link href={href} style={{ fontSize: 14, fontWeight: 500, color: "#1f2933", textDecoration: "none" }}>{m.name}</Link>
                 <form action={disableModule}><input type="hidden" name="slug" value={m.slug} />
-                  <button type="submit" aria-label="Remove module" style={{ border: "none", background: "transparent", color: "#c0b9c9", cursor: "pointer", fontSize: 15, lineHeight: 1 }}>×</button></form>
+                  <button type="submit" aria-label="Remove module" style={{ border: "none", background: "transparent", padding: "4px 10px", color: "#6f6685", cursor: "pointer", fontSize: 15, lineHeight: 1 }}>×</button></form>
               </div>
               <Link href={href} style={{ fontSize: 13, color: "#5f6b7a", textDecoration: "none", display: "block", marginTop: 4 }}>{m.desc}</Link>
             </div>
@@ -130,14 +131,14 @@ export default async function Dashboard() {
 
       {available.length > 0 && (
         <>
-          <h2 style={{ fontSize: 16, margin: "1.75rem 0 0.75rem" }}>Add modules <span style={{ fontSize: 13, color: "#8a809e", fontWeight: 400 }}>· switch on what you need, when you need it</span></h2>
+          <h2 style={{ fontSize: 16, margin: "1.75rem 0 0.75rem" }}>Add modules <span style={{ fontSize: 13, color: "#6f6685", fontWeight: 400 }}>· switch on what you need, when you need it</span></h2>
           <div style={grid}>
             {available.map((m) => (
               <div key={m.slug} style={{ ...card, margin: 0, background: "#f6f8fa" }}>
                 <div style={{ fontSize: 14, fontWeight: 500 }}>{m.name}</div>
                 <div style={{ fontSize: 13, color: "#5f6b7a", margin: "2px 0 8px" }}>{m.desc}</div>
                 <form action={enableModule}><input type="hidden" name="slug" value={m.slug} />
-                  <button type="submit" style={{ fontSize: 13, padding: "5px 12px", borderRadius: 8, border: "0.5px solid #185fa5", background: "#fff", color: "#185fa5", fontWeight: 500, cursor: "pointer" }}>+ Add</button></form>
+                  <SubmitButton style={{ fontSize: 13, padding: "5px 12px", borderRadius: 8, border: "0.5px solid #185fa5", background: "#fff", color: "#185fa5", fontWeight: 500, cursor: "pointer" }}>+ Add</SubmitButton></form>
               </div>
             ))}
           </div>

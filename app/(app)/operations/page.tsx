@@ -1,4 +1,5 @@
 import { desc, eq, isNull } from "drizzle-orm";
+import SubmitButton from "@/components/SubmitButton";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
@@ -36,8 +37,8 @@ export default async function OperationsPage() {
         <section style={card}>
           <strong style={{ fontSize: 15 }}>Tasks</strong>
           <form action={createTask} style={{ display: "flex", gap: 8, margin: "10px 0 12px" }}>
-            <input name="title" required placeholder="New task" style={{ ...input, flex: 1 }} />
-            <button type="submit" style={addBtn}>Add</button>
+            <input aria-label="New task" name="title" required placeholder="New task" style={{ ...input, flex: 1 }} />
+            <SubmitButton style={addBtn}>Add</SubmitButton>
           </form>
           {data.tasks.length === 0 && <div style={{ color: "#5f6b7a", fontSize: 13 }}>No tasks yet.</div>}
           {data.tasks.map((t) => (
@@ -49,7 +50,7 @@ export default async function OperationsPage() {
                   background: t.status === "done" ? "#1d9e75" : "#fff", color: "#fff", cursor: "pointer", fontSize: 11 }}>{t.status === "done" ? "✓" : ""}</button>
               </form>
               <span style={{ fontSize: 14, textDecoration: t.status === "done" ? "line-through" : "none",
-                color: t.status === "done" ? "#8a809e" : "#1f2933" }}>{t.title}</span>
+                color: t.status === "done" ? "#6f6685" : "#1f2933" }}>{t.title}</span>
             </div>
           ))}
         </section>
@@ -58,9 +59,9 @@ export default async function OperationsPage() {
         <section style={card}>
           <strong style={{ fontSize: 15 }}>Goals &amp; KPIs</strong>
           <form action={createObjective} style={{ display: "flex", gap: 8, margin: "10px 0 12px" }}>
-            <input name="name" required placeholder="Objective" style={{ ...input, flex: 2 }} />
-            <input name="target" placeholder="Target" style={{ ...input, flex: 1, minWidth: 70 }} />
-            <button type="submit" style={addBtn}>Add</button>
+            <input aria-label="Objective" name="name" required placeholder="Objective" style={{ ...input, flex: 2 }} />
+            <input aria-label="Target" name="target" placeholder="Target" style={{ ...input, flex: 1, minWidth: 70 }} />
+            <SubmitButton style={addBtn}>Add</SubmitButton>
           </form>
           {data.objectives.length === 0 && <div style={{ color: "#5f6b7a", fontSize: 13 }}>Add a goal so meetings can link to it.</div>}
           {data.objectives.map((o) => (
@@ -74,13 +75,13 @@ export default async function OperationsPage() {
         <section style={{ ...card, gridColumn: "1 / -1" }}>
           <strong style={{ fontSize: 15 }}>Meetings</strong>
           <form action={createMeeting} style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "10px 0 12px" }}>
-            <input name="title" required placeholder="Meeting title" style={{ ...input, flex: 2, minWidth: 160 }} />
+            <input aria-label="Meeting title" name="title" required placeholder="Meeting title" style={{ ...input, flex: 2, minWidth: 160 }} />
             <input name="startsAt" type="datetime-local" style={{ ...input }} />
             <select name="objectiveId" style={{ ...input, flex: 1, minWidth: 160 }} required>
               <option value="">Link to a goal…</option>
               {data.objectives.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
             </select>
-            <button type="submit" style={addBtn}>Schedule</button>
+            <SubmitButton style={addBtn}>Schedule</SubmitButton>
           </form>
           {data.meetings.length === 0 && <div style={{ color: "#5f6b7a", fontSize: 13 }}>No meetings scheduled.</div>}
           {data.meetings.map((m) => (

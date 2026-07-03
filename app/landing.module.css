@@ -122,7 +122,7 @@
   box-shadow: 0 10px 40px rgba(236, 72, 153, 0.45);
 }
 .ctaBig:hover { filter: brightness(1.08); }
-.note { margin-top: 16px; font-size: 13px; color: #8a809e; letter-spacing: 0.02em; }
+.note { margin-top: 16px; font-size: 13px; color: #6f6685; letter-spacing: 0.02em; }
 
 /* features */
 .features { position: relative; max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
@@ -150,7 +150,7 @@
   border-radius: 999px;
 }
 .badgeReady { background: rgba(236, 72, 153, 0.16); color: #f9a8d4; }
-.badgeSoon { background: rgba(255, 255, 255, 0.06); color: #8a809e; }
+.badgeSoon { background: rgba(255, 255, 255, 0.06); color: #6f6685; }
 
 .footer {
   position: relative;

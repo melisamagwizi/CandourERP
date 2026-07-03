@@ -68,7 +68,7 @@ export default async function Storefront({ params }: { params: Promise<{ slug: s
         <LeadForm slug={tenant.slug} items={items} />
       </section>
 
-      <p style={{ textAlign: "center", fontSize: 12, color: "#8a809e", marginTop: 28 }}>Powered by Candour</p>
+      <p style={{ textAlign: "center", fontSize: 12, color: "#6f6685", marginTop: 28 }}>Powered by Candour</p>
     </main>
   );
 }

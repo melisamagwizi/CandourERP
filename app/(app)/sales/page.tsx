@@ -1,4 +1,5 @@
 import { desc, eq } from "drizzle-orm";
+import SubmitButton from "@/components/SubmitButton";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
@@ -50,13 +51,13 @@ export default async function SalesPage() {
 
       <form action={createDeal} style={{ display: "flex", gap: 8, flexWrap: "wrap",
         background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1rem 1.25rem", margin: "16px 0" }}>
-        <input name="name" required placeholder="Deal name" style={{ ...input, flex: 2, minWidth: 160 }} />
+        <input aria-label="Deal name" name="name" required placeholder="Deal name" style={{ ...input, flex: 2, minWidth: 160 }} />
         <select name="accountId" style={{ ...input, flex: 1, minWidth: 140 }}>
           <option value="">No customer</option>
           {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
         </select>
-        <input name="value" type="number" step="0.01" min="0" placeholder="Value" style={{ ...input, width: 120 }} />
-        <button type="submit" style={{ padding: "9px 16px", borderRadius: 8, border: "none", background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add deal</button>
+        <input aria-label="Value" name="value" type="number" step="0.01" min="0" placeholder="Value" style={{ ...input, width: 120 }} />
+        <SubmitButton style={{ padding: "9px 16px", borderRadius: 8, border: "none", background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add deal</SubmitButton>
       </form>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>

@@ -1,4 +1,5 @@
 import { desc, eq } from "drizzle-orm";
+import SubmitButton from "@/components/SubmitButton";
 import { db, withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
@@ -31,14 +32,14 @@ export default async function StrategyPage() {
         <label style={{ fontSize: 13, color: "#5f6b7a" }}>Mission
           <textarea name="mission" defaultValue={tenant?.mission ?? ""} rows={2} placeholder="Why you exist and who you serve…" style={{ ...input, width: "100%", boxSizing: "border-box", marginTop: 4, resize: "vertical" }} />
         </label>
-        <button type="submit" style={{ ...primaryBtn, alignSelf: "flex-start" }}>Save</button>
+        <SubmitButton style={{ ...primaryBtn, alignSelf: "flex-start" }}>Save</SubmitButton>
       </form>
 
       <h2 style={{ fontSize: 16, margin: "1.5rem 0 0.5rem" }}>KPIs &amp; objectives</h2>
       <form action={createObjective} style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-        <input name="name" required placeholder="Objective" style={{ ...input, flex: 2 }} />
-        <input name="target" placeholder="Target" style={{ ...input, flex: 1, minWidth: 90 }} />
-        <button type="submit" style={primaryBtn}>Add</button>
+        <input aria-label="Objective" name="name" required placeholder="Objective" style={{ ...input, flex: 2 }} />
+        <input aria-label="Target" name="target" placeholder="Target" style={{ ...input, flex: 1, minWidth: 90 }} />
+        <SubmitButton style={primaryBtn}>Add</SubmitButton>
       </form>
 
       <section style={{ ...card, padding: 0 }}>

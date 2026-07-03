@@ -1,4 +1,5 @@
 import { desc, eq, sql } from "drizzle-orm";
+import SubmitButton from "@/components/SubmitButton";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
@@ -76,9 +77,9 @@ export default async function FinancePage() {
         <section style={card}>
           <strong style={{ fontSize: 15 }}>Budgets · this month</strong>
           <form action={setBudget} style={{ display: "flex", gap: 8, margin: "10px 0 12px" }}>
-            <input name="category" required placeholder="Category (e.g. Rent)" style={{ ...input, flex: 1 }} />
-            <input name="amount" type="number" step="0.01" min="0" required placeholder="Monthly $" style={{ ...input, width: 110 }} />
-            <button type="submit" style={primaryBtn}>Set</button>
+            <input aria-label="Category (e.g. Rent)" name="category" required placeholder="Category (e.g. Rent)" style={{ ...input, flex: 1 }} />
+            <input aria-label="Monthly $" name="amount" type="number" step="0.01" min="0" required placeholder="Monthly $" style={{ ...input, width: 110 }} />
+            <SubmitButton style={primaryBtn}>Set</SubmitButton>
           </form>
           {d.budgets.length === 0 && <div style={{ fontSize: 13, color: "#5f6b7a" }}>No budgets yet — set one to track spending.</div>}
           {d.budgets.map((b) => {
@@ -92,7 +93,7 @@ export default async function FinancePage() {
                   <span style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <span style={{ color: over ? "#a32d2d" : "#5f6b7a" }}>{money(spent)} / {money(b.monthlyMinor)}{over ? " · over" : ""}</span>
                     <form action={deleteBudget}><input type="hidden" name="id" value={b.id} />
-                      <button type="submit" aria-label="Remove budget" style={{ border: "none", background: "transparent", color: "#c0b9c9", cursor: "pointer" }}>×</button></form>
+                      <button type="submit" aria-label="Remove budget" style={{ border: "none", background: "transparent", padding: "4px 10px", color: "#6f6685", cursor: "pointer" }}>×</button></form>
                   </span>
                 </div>
                 <div style={{ height: 6, background: "#eef2f6", borderRadius: 3 }}>
@@ -115,10 +116,10 @@ export default async function FinancePage() {
       </div>
 
       <form action={createExpense} style={{ display: "flex", gap: 8, flexWrap: "wrap", ...card, marginBottom: 16 }}>
-        <input name="description" placeholder="Expense (e.g. Rent)" style={{ ...input, flex: 2, minWidth: 160 }} />
-        <input name="category" placeholder="Category" style={{ ...input, flex: 1, minWidth: 120 }} />
-        <input name="amount" type="number" step="0.01" min="0" required placeholder="Amount" style={{ ...input, width: 120 }} />
-        <button type="submit" style={primaryBtn}>Add expense</button>
+        <input aria-label="Expense (e.g. Rent)" name="description" placeholder="Expense (e.g. Rent)" style={{ ...input, flex: 2, minWidth: 160 }} />
+        <input aria-label="Category" name="category" placeholder="Category" style={{ ...input, flex: 1, minWidth: 120 }} />
+        <input aria-label="Amount" name="amount" type="number" step="0.01" min="0" required placeholder="Amount" style={{ ...input, width: 120 }} />
+        <SubmitButton style={primaryBtn}>Add expense</SubmitButton>
       </form>
 
       <section style={{ ...card, padding: 0, overflow: "hidden" }}>

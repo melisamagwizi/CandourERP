@@ -61,7 +61,7 @@ export default function DiscoveryWizard() {
           </label>
           <label style={label}>In one line, what do you do?
             <input name="tagline" value={v.tagline} onChange={set("tagline")} placeholder="We help small firms grow with expert advice" style={input} />
-            <span style={{ fontSize: 11, color: "#8a809e" }}>Becomes your mission statement.</span>
+            <span style={{ fontSize: 11, color: "#6f6685" }}>Becomes your mission statement.</span>
           </label>
           <label style={label}>Currency
             <input name="currency" value={v.currency} onChange={set("currency")} maxLength={3} style={{ ...input, width: 110 }} />
@@ -95,12 +95,12 @@ export default function DiscoveryWizard() {
                     <span style={{ fontSize: 13, fontWeight: 500, color: on ? "#185fa5" : "#1f2933" }}>{m.name}</span>
                     <span style={{ fontSize: 12, color: on ? "#185fa5" : "#cbd5e0" }}>{on ? "✓" : "+"}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: "#8a809e", marginTop: 2 }}>{m.desc}</div>
+                  <div style={{ fontSize: 11, color: "#6f6685", marginTop: 2 }}>{m.desc}</div>
                 </button>
               );
             })}
           </div>
-          <p style={{ fontSize: 12, color: "#8a809e", marginTop: 10 }}>{mods.length} selected</p>
+          <p style={{ fontSize: 12, color: "#6f6685", marginTop: 10 }}>{mods.length} selected</p>
         </div>
 
         {/* Step 4 — account */}

@@ -1,4 +1,5 @@
 import { desc } from "drizzle-orm";
+import SubmitButton from "@/components/SubmitButton";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
@@ -23,15 +24,15 @@ export default async function ProductsPage() {
 
       <form action={createProduct} style={{ display: "flex", gap: 8, flexWrap: "wrap",
         background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 16 }}>
-        <input name="code" required placeholder="Code (SVC-001)" style={{ ...input, flex: 1, minWidth: 120 }} />
-        <input name="name" required placeholder="Name" style={{ ...input, flex: 2, minWidth: 160 }} />
+        <input aria-label="Code (SVC-001)" name="code" required placeholder="Code (SVC-001)" style={{ ...input, flex: 1, minWidth: 120 }} />
+        <input aria-label="Name" name="name" required placeholder="Name" style={{ ...input, flex: 2, minWidth: 160 }} />
         <select name="type" style={{ ...input, flex: 1, minWidth: 110 }}>
           <option value="service">Service</option>
           <option value="product">Product</option>
         </select>
-        <input name="price" type="number" step="0.01" min="0" required placeholder="Price" style={{ ...input, width: 110 }} />
-        <button type="submit" style={{ padding: "9px 16px", borderRadius: 8, border: "none",
-          background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add</button>
+        <input aria-label="Price" name="price" type="number" step="0.01" min="0" required placeholder="Price" style={{ ...input, width: 110 }} />
+        <SubmitButton style={{ padding: "9px 16px", borderRadius: 8, border: "none",
+          background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add</SubmitButton>
       </form>
 
       <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, overflow: "hidden" }}>

@@ -1,4 +1,5 @@
 import { desc, eq } from "drizzle-orm";
+import SubmitButton from "@/components/SubmitButton";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
@@ -32,9 +33,9 @@ export default async function PayrollPage() {
       <p style={{ color: "#5f6b7a", marginTop: 0 }}>Run pay for your team and generate payslips.</p>
 
       <form action={runPayroll} style={{ display: "flex", gap: 8, alignItems: "center", ...card, margin: "16px 0" }}>
-        <input name="period" defaultValue={thisMonth} placeholder="2026-07" style={{ ...input, width: 130 }} />
-        <button type="submit" style={primaryBtn} disabled={activeCount === 0}>Run payroll ({activeCount} active)</button>
-        <span style={{ fontSize: 12, color: "#8a809e" }}>Pay is calculated from the components below.</span>
+        <input aria-label="2026-07" name="period" defaultValue={thisMonth} placeholder="2026-07" style={{ ...input, width: 130 }} />
+        <SubmitButton style={primaryBtn} disabled={activeCount === 0}>Run payroll ({activeCount} active)</SubmitButton>
+        <span style={{ fontSize: 12, color: "#6f6685" }}>Pay is calculated from the components below.</span>
       </form>
 
       <section style={{ ...card, marginBottom: 16, background: isZW ? "#e1f5ee" : "#fff", border: isZW ? "0.5px solid #9fe1cb" : "0.5px solid #d9e2ec" }}>
@@ -48,22 +49,22 @@ export default async function PayrollPage() {
             </div>
           </div>
           <form action={isZW ? clearPayrollRegion : applyZimbabweSetup}>
-            <button type="submit" style={{ padding: "8px 14px", borderRadius: 8, border: "0.5px solid " + (isZW ? "#e2b4b4" : "#185fa5"), background: "#fff", color: isZW ? "#a32d2d" : "#185fa5", fontWeight: 500, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
+            <SubmitButton style={{ padding: "8px 14px", borderRadius: 8, border: "0.5px solid " + (isZW ? "#e2b4b4" : "#185fa5"), background: "#fff", color: isZW ? "#a32d2d" : "#185fa5", fontWeight: 500, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
               {isZW ? "Remove" : "Apply Zimbabwe setup"}
-            </button>
+            </SubmitButton>
           </form>
         </div>
       </section>
 
       <section style={{ ...card, marginBottom: 16 }}>
         <strong style={{ fontSize: 15 }}>Deductions &amp; earnings</strong>
-        <p style={{ fontSize: 12, color: "#8a809e", margin: "4px 0 10px" }}>Configure how pay is worked out — e.g. PAYE 15%, pension 5%, or a fixed allowance.</p>
+        <p style={{ fontSize: 12, color: "#6f6685", margin: "4px 0 10px" }}>Configure how pay is worked out — e.g. PAYE 15%, pension 5%, or a fixed allowance.</p>
         <form action={createPayComponent} style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-          <input name="name" required placeholder="e.g. PAYE" style={{ ...input, flex: 1, minWidth: 120 }} />
+          <input aria-label="e.g. PAYE" name="name" required placeholder="e.g. PAYE" style={{ ...input, flex: 1, minWidth: 120 }} />
           <select name="kind" style={input}><option value="deduction">Deduction</option><option value="earning">Earning</option></select>
           <select name="method" style={input}><option value="percent">Percent %</option><option value="fixed">Fixed amount</option></select>
-          <input name="value" type="number" step="0.01" min="0" placeholder="15" style={{ ...input, width: 90 }} />
-          <button type="submit" style={primaryBtn}>Add</button>
+          <input aria-label="15" name="value" type="number" step="0.01" min="0" placeholder="15" style={{ ...input, width: 90 }} />
+          <SubmitButton style={primaryBtn}>Add</SubmitButton>
         </form>
         {comps.length === 0 && <div style={{ fontSize: 13, color: "#5f6b7a" }}>No components yet — net pay equals gross until you add deductions.</div>}
         {comps.map((c) => (
@@ -72,7 +73,7 @@ export default async function PayrollPage() {
             <span style={{ display: "flex", gap: 12, alignItems: "center" }}>
               <span style={{ color: "#5f6b7a" }}>{c.method === "percent" ? `${(c.rateBps ?? 0) / 100}%` : money(c.amountMinor ?? 0)}</span>
               <form action={deletePayComponent}><input type="hidden" name="id" value={c.id} />
-                <button type="submit" aria-label="Remove" style={{ border: "none", background: "transparent", color: "#c0b9c9", cursor: "pointer", fontSize: 15 }}>×</button></form>
+                <button type="submit" aria-label="Remove" style={{ border: "none", background: "transparent", padding: "4px 10px", color: "#6f6685", cursor: "pointer", fontSize: 15 }}>×</button></form>
             </span>
           </div>
         ))}

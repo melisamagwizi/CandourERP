@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SubmitButton from "@/components/SubmitButton";
 import { asc, desc, eq } from "drizzle-orm";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
@@ -61,7 +62,7 @@ export default async function InvoicesPage() {
               <span style={{ fontWeight: 500, textAlign: "right" }}>${(inv.totalMinor / 100).toFixed(2)}</span>
               {unpaid ? (
                 <form action={markInvoicePaid}><input type="hidden" name="invoiceId" value={inv.id} />
-                  <button type="submit" style={{ padding: "5px 11px", borderRadius: 8, border: "0.5px solid #1d9e75", background: "#e1f5ee", color: "#0f6e56", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Mark paid</button></form>
+                  <SubmitButton style={{ padding: "5px 11px", borderRadius: 8, border: "0.5px solid #1d9e75", background: "#e1f5ee", color: "#0f6e56", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Mark paid</SubmitButton></form>
               ) : <span style={{ fontSize: 12, color: "#0f6e56", textAlign: "right" }}>✓ paid</span>}
             </div>
           );
@@ -71,7 +72,7 @@ export default async function InvoicesPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "1.75rem 0 0.5rem" }}>
         <h2 style={{ fontSize: 16, margin: 0 }}>Recurring / retainers</h2>
         <form action={runRecurring}>
-          <button type="submit" style={{ ...primaryBtn, opacity: dueNow ? 1 : 0.5 }}>Run due invoices{dueNow ? ` (${dueNow})` : ""}</button>
+          <SubmitButton style={{ ...primaryBtn, opacity: dueNow ? 1 : 0.5 }}>Run due invoices{dueNow ? ` (${dueNow})` : ""}</SubmitButton>
         </form>
       </div>
 
@@ -80,7 +81,7 @@ export default async function InvoicesPage() {
           <select name="accountId" required style={{ ...input, flex: 1, minWidth: 140 }}>{accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}</select>
           <select name="productId" required style={{ ...input, flex: 1, minWidth: 140 }}>{products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
           <select name="cadence" style={{ ...input }}><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="annual">Annual</option></select>
-          <button type="submit" style={primaryBtn}>Add retainer</button>
+          <SubmitButton style={primaryBtn}>Add retainer</SubmitButton>
         </form>
       )}
 

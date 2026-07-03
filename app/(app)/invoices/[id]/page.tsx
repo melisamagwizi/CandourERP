@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SubmitButton from "@/components/SubmitButton";
 import { eq, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { withTenant } from "@/db";
@@ -66,11 +67,11 @@ export default async function InvoiceDetail({ params }: { params: Promise<{ id: 
         <a href={mailLink} style={btn}>Send by email</a>
         {inv.status === "draft" && (
           <form action={markInvoiceSent}><input type="hidden" name="invoiceId" value={inv.id} />
-            <button type="submit" style={btn}>Mark as sent</button></form>
+            <SubmitButton style={btn}>Mark as sent</SubmitButton></form>
         )}
         {inv.status !== "paid" && inv.status !== "void" && (
           <form action={markInvoicePaid}><input type="hidden" name="invoiceId" value={inv.id} />
-            <button type="submit" style={{ ...btn, borderColor: "#185fa5", color: "#fff", background: "#185fa5" }}>Mark paid</button></form>
+            <SubmitButton style={{ ...btn, borderColor: "#185fa5", color: "#fff", background: "#185fa5" }}>Mark paid</SubmitButton></form>
         )}
       </div>
 
@@ -79,11 +80,11 @@ export default async function InvoiceDetail({ params }: { params: Promise<{ id: 
           <input type="hidden" name="invoiceId" value={inv.id} />
           <span style={{ fontSize: 13, color: "#5f6b7a" }}>Record a payment:</span>
           <input name="amount" type="number" step="0.01" min="0" defaultValue={(outstanding / 100).toFixed(2)} style={{ ...btn, width: 110, cursor: "text" }} />
-          <button type="submit" style={btn}>Record</button>
+          <SubmitButton style={btn}>Record</SubmitButton>
         </form>
       )}
 
-      <p style={{ fontSize: 12, color: "#8a809e", marginTop: 14 }}>
+      <p style={{ fontSize: 12, color: "#6f6685", marginTop: 14 }}>
         WhatsApp and email open with the message pre-filled, sent from your own account. Automated server-side
         delivery (WhatsApp Business API) comes with billing setup.
       </p>

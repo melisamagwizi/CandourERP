@@ -1,4 +1,5 @@
 import { asc, eq } from "drizzle-orm";
+import SubmitButton from "@/components/SubmitButton";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
@@ -57,9 +58,9 @@ export default async function StockPage() {
                 </div>
                 <form action={recordStockMovement} style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <input type="hidden" name="productId" value={p.id} />
-                  <input name="delta" type="number" required placeholder="+/- qty" style={{ ...input, width: 90 }} />
-                  <input name="reason" placeholder="Reason" style={{ ...input, width: 120 }} />
-                  <button type="submit" style={primaryBtn}>Record</button>
+                  <input aria-label="+/- qty" name="delta" type="number" required placeholder="+/- qty" style={{ ...input, width: 90 }} />
+                  <input aria-label="Reason" name="reason" placeholder="Reason" style={{ ...input, width: 120 }} />
+                  <SubmitButton style={primaryBtn}>Record</SubmitButton>
                 </form>
               </div>
               <form action={updateStockSettings} style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 10, paddingTop: 10, borderTop: "0.5px solid #eef2f6" }}>
@@ -70,7 +71,7 @@ export default async function StockPage() {
                 <label style={{ fontSize: 12, color: "#5f6b7a" }}>Cost price $
                   <input name="cost" type="number" step="0.01" min="0" defaultValue={p.costPriceMinor ? (p.costPriceMinor / 100).toFixed(2) : ""} style={{ ...input, width: 90, marginLeft: 6 }} />
                 </label>
-                <button type="submit" style={{ padding: "6px 12px", borderRadius: 8, border: "0.5px solid #d9e2ec", background: "#fff", color: "#185fa5", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Save</button>
+                <SubmitButton style={{ padding: "6px 12px", borderRadius: 8, border: "0.5px solid #d9e2ec", background: "#fff", color: "#185fa5", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Save</SubmitButton>
               </form>
             </div>
           );

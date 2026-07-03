@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SubmitButton from "@/components/SubmitButton";
 import { desc, eq, sql } from "drizzle-orm";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
@@ -33,14 +34,14 @@ export default async function ProjectsPage() {
 
       <form action={createProject} style={{ display: "flex", gap: 8, flexWrap: "wrap",
         background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1rem 1.25rem", margin: "16px 0" }}>
-        <input name="name" required placeholder="Project name" style={{ ...input, flex: 2, minWidth: 160 }} />
+        <input aria-label="Project name" name="name" required placeholder="Project name" style={{ ...input, flex: 2, minWidth: 160 }} />
         <select name="accountId" style={{ ...input, flex: 1, minWidth: 140 }}>
           <option value="">Internal / no client</option>
           {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
         </select>
-        <input name="budget" type="number" step="0.01" min="0" placeholder="Budget" style={{ ...input, width: 120 }} />
-        <button type="submit" style={{ padding: "9px 16px", borderRadius: 8, border: "none",
-          background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add project</button>
+        <input aria-label="Budget" name="budget" type="number" step="0.01" min="0" placeholder="Budget" style={{ ...input, width: 120 }} />
+        <SubmitButton style={{ padding: "9px 16px", borderRadius: 8, border: "none",
+          background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add project</SubmitButton>
       </form>
 
       <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, overflow: "hidden" }}>

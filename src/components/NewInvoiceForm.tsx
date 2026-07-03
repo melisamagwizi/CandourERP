@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import SubmitButton from "@/components/SubmitButton";
 
 type Account = { id: string; name: string };
 type Product = { id: string; name: string; unitPriceMinor: number; rateBps: number };
@@ -74,11 +75,11 @@ export default function NewInvoiceForm({
         <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 500, borderTop: "0.5px solid #d9e2ec", marginTop: 4, paddingTop: 6 }}><span>Total</span><span>{money(subtotal + taxTotal)}</span></div>
       </div>
 
-      <button type="submit" disabled={valid.length === 0} style={{ alignSelf: "flex-start", padding: "10px 18px",
+      <SubmitButton disabled={valid.length === 0} style={{ alignSelf: "flex-start", padding: "10px 18px",
         borderRadius: 8, border: "none", background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer",
         opacity: valid.length === 0 ? 0.5 : 1 }}>
         Create invoice
-      </button>
+      </SubmitButton>
     </form>
   );
 }

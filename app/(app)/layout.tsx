@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SubmitButton from "@/components/SubmitButton";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import * as s from "@/db/schema";
@@ -24,10 +25,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </nav>
           <span style={{ fontSize: 13, color: "#5f6b7a" }}>{tenant?.name} · {session.name}</span>
           <form action={logout}>
-            <button type="submit" style={{ padding: "6px 11px", borderRadius: 8,
+            <SubmitButton style={{ padding: "6px 11px", borderRadius: 8,
               border: "0.5px solid #d9e2ec", background: "#fff", cursor: "pointer", fontSize: 13 }}>
               Sign out
-            </button>
+            </SubmitButton>
           </form>
         </div>
       </header>

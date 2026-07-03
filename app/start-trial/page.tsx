@@ -76,12 +76,12 @@ export default async function StartTrialPage() {
           </ul>
 
           <div style={{ background: "#fff", border: "0.5px solid #e2e8f0", borderRadius: 12, padding: "1.1rem 1.25rem" }}>
-            <div style={{ fontSize: 13, color: "#8a809e", marginBottom: 6 }}>Plan</div>
+            <div style={{ fontSize: 13, color: "#6f6685", marginBottom: 6 }}>Plan</div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
               <strong style={{ fontSize: 18 }}>{PLAN.name}</strong>
               <strong style={{ fontSize: 18 }}>$0 due today</strong>
             </div>
-            <div style={{ fontSize: 13, color: "#8a809e", marginTop: 4 }}>
+            <div style={{ fontSize: 13, color: "#6f6685", marginTop: 4 }}>
               {tenant?.name} · {PLAN.price} after the trial
             </div>
           </div>

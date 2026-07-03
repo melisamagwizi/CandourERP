@@ -1,4 +1,5 @@
 import { desc } from "drizzle-orm";
+import SubmitButton from "@/components/SubmitButton";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
@@ -23,11 +24,11 @@ export default async function CustomersPage() {
 
       <form action={createCustomer} style={{ display: "flex", gap: 8, flexWrap: "wrap",
         background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 16 }}>
-        <input name="name" required placeholder="Company name" style={{ ...input, flex: 2, minWidth: 160 }} />
-        <input name="billingEmail" type="email" placeholder="Billing email" style={{ ...input, flex: 2, minWidth: 160 }} />
-        <input name="whatsapp" placeholder="WhatsApp number" style={{ ...input, flex: 1, minWidth: 130 }} />
-        <button type="submit" style={{ padding: "9px 16px", borderRadius: 8, border: "none",
-          background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add</button>
+        <input aria-label="Company name" name="name" required placeholder="Company name" style={{ ...input, flex: 2, minWidth: 160 }} />
+        <input aria-label="Billing email" name="billingEmail" type="email" placeholder="Billing email" style={{ ...input, flex: 2, minWidth: 160 }} />
+        <input aria-label="WhatsApp number" name="whatsapp" placeholder="WhatsApp number" style={{ ...input, flex: 1, minWidth: 130 }} />
+        <SubmitButton style={{ padding: "9px 16px", borderRadius: 8, border: "none",
+          background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add</SubmitButton>
       </form>
 
       <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, overflow: "hidden" }}>
