@@ -123,7 +123,40 @@ export async function runPayroll(formData: FormData) {
   revalidatePath("/payroll");
 }
 
+export async function setBudget(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const category = String(formData.get("category") ?? "").trim();
+  const monthlyMinor = Math.round((parseFloat(String(formData.get("amount") ?? "0")) || 0) * 100);
+  if (!category || monthlyMinor < 0) return;
+  await withTenant(tenantId, (tx) =>
+    tx.insert(s.budgets).values({ tenantId, category, monthlyMinor })
+      .onConflictDoUpdate({ target: [s.budgets.tenantId, s.budgets.category], set: { monthlyMinor } }),
+  );
+  revalidatePath("/finance");
+}
+
+export async function deleteBudget(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await withTenant(tenantId, (tx) => tx.delete(s.budgets).where(eq(s.budgets.id, id)));
+  revalidatePath("/finance");
+}
+
 /* -------------------------------- Stock ------------------------------- */
+export async function updateStockSettings(formData: FormData) {
+  const { tenantId } = await requireAuth();
+  const productId = String(formData.get("productId") ?? "");
+  if (!productId) return;
+  const reorderLevel = Math.max(0, parseInt(String(formData.get("reorderLevel") ?? "0")) || 0);
+  const cost = parseFloat(String(formData.get("cost") ?? ""));
+  const costPriceMinor = Number.isFinite(cost) ? Math.round(cost * 100) : null;
+  await withTenant(tenantId, (tx) =>
+    tx.update(s.products).set({ reorderLevel, ...(costPriceMinor !== null ? { costPriceMinor } : {}) }).where(eq(s.products.id, productId)),
+  );
+  revalidatePath("/stock");
+}
+
 export async function recordStockMovement(formData: FormData) {
   const { tenantId } = await requireAuth();
   const productId = String(formData.get("productId") ?? "");

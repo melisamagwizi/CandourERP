@@ -58,6 +58,15 @@ export async function createInvoiceFor(tenantId: string, accountId: string, rawL
       subtotalMinor: subtotal, taxMinor: taxTotal, totalMinor: subtotal + taxTotal,
     }).returning();
     await tx.insert(s.invoiceLines).values(lineRows.map((r) => ({ ...r, invoiceId: inv.id })));
+
+    // Rule: invoicing a stockable product decrements inventory, with a movement trail.
+    for (const l of lines) {
+      const p = pmap.get(l.productId);
+      if (p?.isStockable) {
+        await tx.insert(s.stockMovements).values({ tenantId, productId: p.id, delta: -l.qty, reason: `Invoice ${number}` });
+        await tx.update(s.products).set({ stockQty: sql`${s.products.stockQty} - ${l.qty}` }).where(eq(s.products.id, p.id));
+      }
+    }
     return { id: inv.id, number, totalMinor: subtotal + taxTotal };
   });
 }

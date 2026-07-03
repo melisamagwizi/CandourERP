@@ -366,6 +366,15 @@ export const payslips = pgTable("payslips", {
   netMinor: bigint("net_minor", { mode: "number" }).notNull(),
 });
 
+// Monthly spending budgets per expense category (Finance).
+export const budgets = pgTable("budgets", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  category: text("category").notNull(),
+  monthlyMinor: bigint("monthly_minor", { mode: "number" }).notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => ({ uq: uniqueIndex("uq_budget_category").on(t.tenantId, t.category) }));
+
 /* ----------------------------- Stock & Assets ------------------------- */
 
 export const stockMovements = pgTable("stock_movements", {
@@ -399,5 +408,5 @@ export const TENANT_TABLES = [
   "transactions", "opportunities",
   "projects", "tasks", "objectives", "meetings",
   "employees", "leave_requests", "pay_runs", "payslips", "stock_movements", "assets",
-  "recurring_schedules", "time_entries", "pay_components",
+  "recurring_schedules", "time_entries", "pay_components", "budgets",
 ] as const;
