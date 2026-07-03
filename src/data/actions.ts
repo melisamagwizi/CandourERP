@@ -34,7 +34,8 @@ export async function createEmployee(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim() || null;
   const department = String(formData.get("department") ?? "").trim() || null;
   const salaryMinor = Math.round((parseFloat(String(formData.get("salary") ?? "0")) || 0) * 100);
-  await withTenant(tenantId, (tx) => tx.insert(s.employees).values({ tenantId, name, email, title, department, salaryMinor }));
+  const leaveEntitlementDays = Math.max(0, parseInt(String(formData.get("entitlement") ?? "21")) || 21);
+  await withTenant(tenantId, (tx) => tx.insert(s.employees).values({ tenantId, name, email, title, department, salaryMinor, leaveEntitlementDays }));
   revalidatePath("/hrm");
   revalidatePath("/payroll");
 }
@@ -56,8 +57,24 @@ export async function decideLeave(formData: FormData) {
   const leaveId = String(formData.get("leaveId") ?? "");
   const decision = String(formData.get("decision") ?? "") as "approved" | "rejected";
   if (!leaveId || !["approved", "rejected"].includes(decision)) return;
-  await withTenant(tenantId, (tx) => tx.update(s.leaveRequests).set({ status: decision }).where(eq(s.leaveRequests.id, leaveId)));
+  await withTenant(tenantId, async (tx) => {
+    const [req] = await tx.select().from(s.leaveRequests).where(eq(s.leaveRequests.id, leaveId));
+    if (!req || req.status !== "pending") return;
+    // Rule: approval draws down the annual balance; unpaid leave doesn't count.
+    // Approving beyond the employee's remaining entitlement is blocked.
+    if (decision === "approved" && req.type !== "unpaid") {
+      const [emp] = await tx.select().from(s.employees).where(eq(s.employees.id, req.employeeId));
+      const [{ used }] = await tx.select({ used: sql<number>`coalesce(sum(${s.leaveRequests.days}), 0)::int` })
+        .from(s.leaveRequests)
+        .where(and(eq(s.leaveRequests.employeeId, req.employeeId), eq(s.leaveRequests.status, "approved"),
+          sql`${s.leaveRequests.type} <> 'unpaid'`,
+          sql`extract(year from ${s.leaveRequests.createdAt}) = extract(year from now())`));
+      if (emp && Number(used) + req.days > emp.leaveEntitlementDays) return;
+    }
+    await tx.update(s.leaveRequests).set({ status: decision }).where(eq(s.leaveRequests.id, leaveId));
+  });
   revalidatePath("/hrm");
+  revalidatePath("/dashboard");
 }
 
 /* ------------------------------ Payroll ------------------------------- */

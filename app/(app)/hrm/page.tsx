@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
@@ -11,14 +11,21 @@ const leaveColor: Record<string, string> = { pending: "#854f0b", approved: "#0f6
 
 export default async function HrmPage() {
   const session = await requireAuth();
-  const { employees, leave } = await withTenant(session.tenantId, async (tx) => {
+  const { employees, leave, usedByEmp } = await withTenant(session.tenantId, async (tx) => {
     const employees = await tx.select().from(s.employees).orderBy(desc(s.employees.createdAt));
     const leave = await tx.select({
       id: s.leaveRequests.id, type: s.leaveRequests.type, days: s.leaveRequests.days,
       status: s.leaveRequests.status, who: s.employees.name,
     }).from(s.leaveRequests).leftJoin(s.employees, eq(s.employees.id, s.leaveRequests.employeeId))
       .orderBy(desc(s.leaveRequests.createdAt)).limit(20);
-    return { employees, leave };
+    const used = await tx.select({
+      employeeId: s.leaveRequests.employeeId,
+      days: sql<number>`coalesce(sum(${s.leaveRequests.days}), 0)::int`,
+    }).from(s.leaveRequests)
+      .where(sql`${s.leaveRequests.status} = 'approved' and ${s.leaveRequests.type} <> 'unpaid' and extract(year from ${s.leaveRequests.createdAt}) = extract(year from now())`)
+      .groupBy(s.leaveRequests.employeeId);
+    const usedByEmp = new Map(used.map((u) => [u.employeeId, Number(u.days)]));
+    return { employees, leave, usedByEmp };
   });
 
   return (
@@ -31,6 +38,7 @@ export default async function HrmPage() {
         <input name="title" placeholder="Job title" style={{ ...input, flex: 1, minWidth: 120 }} />
         <input name="department" placeholder="Department" style={{ ...input, flex: 1, minWidth: 120 }} />
         <input name="salary" type="number" step="0.01" min="0" placeholder="Monthly salary" style={{ ...input, width: 130 }} />
+        <input name="entitlement" type="number" min="0" placeholder="Leave days/yr (21)" style={{ ...input, width: 140 }} />
         <button type="submit" style={primaryBtn}>Add employee</button>
       </form>
 
@@ -39,7 +47,10 @@ export default async function HrmPage() {
         {employees.map((e) => (
           <div key={e.id} style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6" }}>
             <span style={{ fontWeight: 500 }}>{e.name}<span style={{ fontSize: 12, color: "#888" }}>{e.title ? ` · ${e.title}` : ""}</span></span>
-            <span style={{ fontSize: 13, color: "#5f6b7a" }}>{e.department ?? "—"}</span>
+            <span style={{ fontSize: 13, color: "#5f6b7a" }}>
+              {e.department ?? "—"} · <span style={{ color: (e.leaveEntitlementDays - (usedByEmp.get(e.id) ?? 0)) <= 0 ? "#a32d2d" : "#5f6b7a" }}>
+                {e.leaveEntitlementDays - (usedByEmp.get(e.id) ?? 0)} of {e.leaveEntitlementDays}d leave left</span>
+            </span>
             <span style={{ fontSize: 12, color: "#5f6b7a", textTransform: "capitalize" }}>{e.status.replace("_", " ")}</span>
             <span style={{ fontSize: 13, textAlign: "right" }}>{money(e.salaryMinor)}</span>
           </div>

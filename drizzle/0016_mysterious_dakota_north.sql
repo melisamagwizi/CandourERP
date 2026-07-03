@@ -1,0 +1,1 @@
+ALTER TABLE "employees" ADD COLUMN "leave_entitlement_days" integer DEFAULT 21 NOT NULL;

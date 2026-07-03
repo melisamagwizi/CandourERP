@@ -310,6 +310,7 @@ export const employees = pgTable("employees", {
   startDate: date("start_date"),
   status: employeeStatus("status").notNull().default("active"),
   salaryMinor: bigint("salary_minor", { mode: "number" }).notNull().default(0),
+  leaveEntitlementDays: integer("leave_entitlement_days").notNull().default(21),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
