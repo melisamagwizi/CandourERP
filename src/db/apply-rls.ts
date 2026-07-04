@@ -13,8 +13,8 @@ for (const table of TENANT_TABLES) {
   await sql.unsafe(`DROP POLICY IF EXISTS tenant_isolation ON ${table};`);
   await sql.unsafe(`
     CREATE POLICY tenant_isolation ON ${table}
-      USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
-      WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+      USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid)
+      WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
   `);
   console.log(`✓ RLS on ${table}`);
 }

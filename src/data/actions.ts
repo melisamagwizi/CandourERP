@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { and, eq, inArray, isNull, lte, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { requireAuth } from "@/auth/current";
 import { db, withTenant } from "@/db";
 import * as s from "@/db/schema";
@@ -208,7 +208,7 @@ export async function updateAssetStatus(formData: FormData) {
   await withTenant(tenantId, (tx) => tx.update(s.assets).set({ status }).where(eq(s.assets.id, assetId)));
   revalidatePath("/assets");
 }
-import { createInvoiceFor, createInvoiceFromDeal, createInvoiceAdhoc, markInvoicePaidFor, recordPaymentFor } from "./billing";
+import { createInvoiceFor, createInvoiceFromDeal, createInvoiceAdhoc, markInvoicePaidFor, recordPaymentFor, runDueRecurringFor } from "./billing";
 import { computeZimStatutory } from "./payroll-zw";
 
 export async function logTime(formData: FormData) {
@@ -253,12 +253,6 @@ export async function billProjectTime(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
-function advanceDate(dateStr: string, cadence: string) {
-  const d = new Date(dateStr + "T00:00:00Z");
-  d.setUTCMonth(d.getUTCMonth() + (cadence === "annual" ? 12 : cadence === "quarterly" ? 3 : 1));
-  return d.toISOString().slice(0, 10);
-}
-
 export async function createRecurring(formData: FormData) {
   const { tenantId } = await requireAuth();
   const accountId = String(formData.get("accountId") ?? "");
@@ -274,16 +268,7 @@ export async function createRecurring(formData: FormData) {
 
 export async function runRecurring() {
   const { tenantId } = await requireAuth();
-  const today = new Date().toISOString().slice(0, 10);
-  const due = await withTenant(tenantId, (tx) =>
-    tx.select().from(s.recurringSchedules).where(and(eq(s.recurringSchedules.active, true), lte(s.recurringSchedules.nextRunOn, today))),
-  );
-  for (const sch of due) {
-    if (!sch.productId) continue;
-    await createInvoiceFor(tenantId, sch.accountId, [{ productId: sch.productId, qty: sch.qty }]);
-    const next = advanceDate(sch.nextRunOn, sch.cadence);
-    await withTenant(tenantId, (tx) => tx.update(s.recurringSchedules).set({ nextRunOn: next }).where(eq(s.recurringSchedules.id, sch.id)));
-  }
+  await runDueRecurringFor(tenantId);
   revalidatePath("/invoices");
   revalidatePath("/dashboard");
 }

@@ -9,3 +9,6 @@ build
 next-env.d.ts
 scripts/reset-db-access.log
 pg_hba.conf*.candour-bak
+
+.vercel
+.env*

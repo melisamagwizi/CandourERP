@@ -1,6 +1,32 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { withTenant } from "../db";
 import * as s from "../db/schema";
+
+function advanceCadence(dateStr: string, cadence: string) {
+  const d = new Date(dateStr + "T00:00:00Z");
+  d.setUTCMonth(d.getUTCMonth() + (cadence === "annual" ? 12 : cadence === "quarterly" ? 3 : 1));
+  return d.toISOString().slice(0, 10);
+}
+
+/** Generates invoices for a tenant's due recurring schedules. Returns how many were created. */
+export async function runDueRecurringFor(tenantId: string): Promise<number> {
+  const today = new Date().toISOString().slice(0, 10);
+  const due = await withTenant(tenantId, (tx) =>
+    tx.select().from(s.recurringSchedules)
+      .where(and(eq(s.recurringSchedules.active, true), lte(s.recurringSchedules.nextRunOn, today))),
+  );
+  let created = 0;
+  for (const sch of due) {
+    if (!sch.productId) continue;
+    const inv = await createInvoiceFor(tenantId, sch.accountId, [{ productId: sch.productId, qty: sch.qty }]);
+    if (inv) created++;
+    const next = advanceCadence(sch.nextRunOn, sch.cadence);
+    await withTenant(tenantId, (tx) =>
+      tx.update(s.recurringSchedules).set({ nextRunOn: next }).where(eq(s.recurringSchedules.id, sch.id)),
+    );
+  }
+  return created;
+}
 
 export type DraftLine = { productId: string; qty: number };
 
