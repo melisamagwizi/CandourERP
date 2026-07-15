@@ -6,6 +6,7 @@ import {
   Home, TrendingUp, Users, Package, FileText, Wallet, FolderKanban,
   CalendarCheck, UserRound, Banknote, Boxes, Archive, Target, LogOut,
 } from "lucide-react";
+import Mark from "./Mark";
 
 type Item = { href: string; label: string; slug: string | null; icon: React.ComponentType<{ size?: number }> };
 type Group = { label: string | null; items: Item[] };
@@ -37,17 +38,6 @@ const NAV: Group[] = [
     { href: "/strategy", label: "Strategy", slug: "strategy", icon: Target },
   ]},
 ];
-
-function Mark({ size = 26 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden="true">
-      <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="2.6" />
-      <circle cx="24" cy="24" r="16.5" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M31 15.5a11 11 0 1 0 0 17" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
-      <path d="M24 13.5v21M17.5 24h13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 export default function Sidebar({
   enabledSlugs, tenantName, userName, logout,

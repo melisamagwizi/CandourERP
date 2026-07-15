@@ -1,22 +1,12 @@
 import Link from "next/link";
 import styles from "./landing.module.css";
 import { MODULES } from "@/modules";
+import Mark from "@/components/Mark";
 
 export const metadata = {
   title: "Candour — run your whole business in one light app",
   description: "CRM, invoicing, cash flow and your team in one place. Built for entrepreneurs. Get paid faster over WhatsApp.",
 };
-
-function Mark({ size = 34 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden="true">
-      <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="2.4" />
-      <circle cx="24" cy="24" r="16.5" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M31 15.5a11 11 0 1 0 0 17" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
-      <path d="M24 13.5v21M17.5 24h13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 export default function Landing() {
   return (
@@ -29,7 +19,7 @@ export default function Landing() {
 
       <header className={styles.nav}>
         <div className={styles.brand} style={{ color: "#fff" }}>
-          <Mark />
+          <Mark size={34} />
           <span className={styles.brandName}>CANDOUR</span>
         </div>
         <nav className={styles.navLinks}>
