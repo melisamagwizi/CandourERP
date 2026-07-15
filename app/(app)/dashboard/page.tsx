@@ -1,10 +1,9 @@
 import Link from "next/link";
-import SubmitButton from "@/components/SubmitButton";
 import { eq, sql } from "drizzle-orm";
 import { db, withTenant } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
-import { businessModules, platformModules, type ModuleDef } from "@/modules";
+import { businessModules, platformModules } from "@/modules";
 import { money } from "@/ui";
 import { enableModule, disableModule } from "@/data/actions";
 import ShareLink from "@/components/ShareLink";
@@ -31,6 +30,7 @@ export default async function Dashboard() {
     }).from(s.opportunities);
     const [inv] = await tx.select({ n: sql<number>`count(*)::int`, unpaidN: sql<number>`count(*) filter (where ${s.invoices.status} not in ('paid','void'))::int`, unpaid: sql<number>`coalesce(sum(${s.invoices.totalMinor}) filter (where ${s.invoices.status} not in ('paid','void')), 0)::bigint`, overdue: sql<number>`count(*) filter (where ${s.invoices.status} not in ('paid','void') and ${s.invoices.dueDate} is not null and ${s.invoices.dueDate} < current_date)::int` }).from(s.invoices);
     const [tsk] = await tx.select({ open: sql<number>`count(*) filter (where ${s.tasks.status} <> 'done')::int`, overdue: sql<number>`count(*) filter (where ${s.tasks.status} <> 'done' and ${s.tasks.dueOn} is not null and ${s.tasks.dueOn} < current_date)::int` }).from(s.tasks);
+    const [prj] = await tx.select({ active: sql<number>`count(*) filter (where ${s.projects.status} = 'active')::int` }).from(s.projects);
     const [lv] = await tx.select({ pending: sql<number>`count(*) filter (where ${s.leaveRequests.status} = 'pending')::int` }).from(s.leaveRequests);
     const [obj] = await tx.select({ risk: sql<number>`count(*) filter (where ${s.objectives.status} <> 'on_track')::int` }).from(s.objectives);
     const [txn] = await tx.select({ inflow: sql<number>`coalesce(sum(${s.transactions.amountMinor}) filter (where ${s.transactions.type} = 'inflow' and ${s.transactions.occurredAt} >= date_trunc('month', now())), 0)::bigint` }).from(s.transactions);
@@ -38,7 +38,8 @@ export default async function Dashboard() {
       customers: Number(acc.n), products: Number(prod.n), lowStock: Number(prod.low),
       leads: Number(opp.leads), pipeline: Number(opp.pipeline), followUp: Number(opp.followUp),
       invoices: Number(inv.n), unpaidN: Number(inv.unpaidN), unpaid: Number(inv.unpaid), overdue: Number(inv.overdue),
-      openTasks: Number(tsk.open), overdueTasks: Number(tsk.overdue), pendingLeave: Number(lv.pending), atRisk: Number(obj.risk), inflow: Number(txn.inflow),
+      openTasks: Number(tsk.open), overdueTasks: Number(tsk.overdue), activeProjects: Number(prj.active),
+      pendingLeave: Number(lv.pending), atRisk: Number(obj.risk), inflow: Number(txn.inflow),
     };
   });
 
@@ -51,6 +52,14 @@ export default async function Dashboard() {
   };
   const hero = HERO[goal] ?? HERO.customers;
 
+  const cockpit = [
+    { label: "Revenue this month", value: money(d.inflow), href: "/finance", tone: "" },
+    { label: "Pipeline value", value: money(d.pipeline), href: "/sales", tone: "" },
+    { label: "Active projects", value: String(d.activeProjects), href: "/projects", tone: "" },
+    { label: "Invoices overdue", value: String(d.overdue), href: "/invoices", tone: d.overdue > 0 ? "text-bad" : "" },
+    { label: "Tasks overdue", value: String(d.overdueTasks), href: "/operations", tone: d.overdueTasks > 0 ? "text-warn" : "" },
+  ];
+
   const attention = [
     d.overdue > 0 && { icon: "🔴", text: `${d.overdue} invoice(s) overdue — chase them`, href: "/invoices" },
     d.unpaidN > 0 && { icon: "💰", text: `You're owed ${money(d.unpaid)} across ${d.unpaidN} invoice(s)`, href: "/invoices" },
@@ -59,7 +68,6 @@ export default async function Dashboard() {
     d.pendingLeave > 0 && { icon: "🌿", text: `${d.pendingLeave} leave request(s) awaiting approval`, href: "/hrm" },
     d.lowStock > 0 && { icon: "📦", text: `${d.lowStock} product(s) low on stock`, href: "/stock" },
     d.overdueTasks > 0 && { icon: "📌", text: `${d.overdueTasks} task(s) overdue`, href: "/operations" },
-    d.openTasks > 0 && { icon: "✅", text: `${d.openTasks} open task(s)`, href: "/operations" },
     d.atRisk > 0 && { icon: "🎯", text: `${d.atRisk} KPI(s) need attention`, href: "/strategy" },
   ].filter(Boolean) as { icon: string; text: string; href: string }[];
 
@@ -76,102 +84,98 @@ export default async function Dashboard() {
 
   return (
     <div>
-      <p style={{ color: "#5f6b7a", margin: "0 0 4px", fontSize: 14 }}>Hi {session.name} · your goal is to {GOAL_TEXT[goal] ?? "grow your business"}</p>
+      <p className="m-0 text-[13px] text-mute">
+        Hi {session.name} · your goal is to {GOAL_TEXT[goal] ?? "grow your business"}
+      </p>
+      <h1 className="mt-1 mb-5 text-[26px] font-semibold tracking-tight">CEO cockpit</h1>
 
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.3fr) minmax(0,1fr)", gap: 12, marginBottom: 16 }}>
-        <Link href={hero.href} style={{ textDecoration: "none", background: "#185fa5", color: "#fff", borderRadius: 14, padding: "1.25rem 1.5rem", display: "block" }}>
-          <div style={{ fontSize: 13, opacity: 0.85 }}>{hero.label}</div>
-          <div style={{ fontSize: 34, fontWeight: 600, margin: "4px 0" }}>{hero.value}</div>
-          <div style={{ fontSize: 13, opacity: 0.85 }}>{hero.sub} →</div>
+      <div className="mb-4 grid gap-3 md:grid-cols-[1.25fr_1fr]">
+        <Link href={hero.href} className="block rounded-card bg-ink p-6 text-white no-underline transition-opacity hover:opacity-90">
+          <div className="text-[13px] text-white/70">{hero.label}</div>
+          <div className="my-1 text-[38px] font-semibold leading-tight tracking-tight">{hero.value}</div>
+          <div className="text-[13px] text-white/70">{hero.sub} →</div>
         </Link>
-        <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 14, padding: "1rem 1.25rem" }}>
-          <strong style={{ fontSize: 14 }}>Needs your attention</strong>
-          {attention.length === 0 && <div style={{ color: "#5f6b7a", fontSize: 13, marginTop: 8 }}>You&apos;re all caught up 🎉</div>}
-          {attention.map((a) => (
-            <Link key={a.text} href={a.href} style={{ display: "flex", gap: 8, alignItems: "center", padding: "6px 0", fontSize: 13, color: "#1f2933", textDecoration: "none" }}>
-              <span>{a.icon}</span><span style={{ flex: 1 }}>{a.text}</span><span style={{ color: "#185fa5" }}>→</span>
-            </Link>
-          ))}
+
+        <section className="rounded-card border border-line bg-card p-5">
+          <div className="text-[14px] font-semibold">Needs your attention</div>
+          {attention.length === 0 && <div className="mt-2 text-[13px] text-mute">You&apos;re all caught up 🎉</div>}
+          <div className="mt-1">
+            {attention.slice(0, 6).map((a) => (
+              <Link key={a.text} href={a.href} className="flex items-center gap-2 py-1.5 text-[13px] text-ink no-underline hover:text-accent">
+                <span>{a.icon}</span><span className="flex-1">{a.text}</span><span className="text-accent">→</span>
+              </Link>
+            ))}
+          </div>
         </section>
+      </div>
+
+      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-5">
+        {cockpit.map((c) => (
+          <Link key={c.label} href={c.href} className="rounded-card border border-line bg-card p-4 no-underline transition-colors hover:border-ink/30">
+            <div className="text-[12px] text-mute">{c.label}</div>
+            <div className={`mt-1 text-[21px] font-semibold tracking-tight text-ink ${c.tone}`}>{c.value}</div>
+          </Link>
+        ))}
       </div>
 
       {goal === "customers" && <ShareLink slug={tenant?.slug ?? ""} />}
 
       {!setupDone && (
-        <section style={card}>
-          <strong style={{ fontSize: 15 }}>Finish setting up</strong>
+        <section className="mt-4 rounded-card border border-line bg-card p-5">
+          <div className="text-[15px] font-semibold">Finish setting up</div>
           {steps.map((step) => (
-            <div key={step.label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "0.5px solid #eef2f6" }}>
-              <span style={{ width: 18, height: 18, borderRadius: "50%", flexShrink: 0, border: "1.5px solid " + (step.done ? "#1d9e75" : "#cbd5e0"), background: step.done ? "#1d9e75" : "transparent", color: "#fff", fontSize: 12, textAlign: "center", lineHeight: "16px" }}>{step.done ? "✓" : ""}</span>
-              <span style={{ flex: 1, fontSize: 14, color: step.done ? "#5f6b7a" : "#1f2933" }}>{step.label}</span>
-              {!step.done && <Link href={step.href} style={{ fontSize: 13, color: "#185fa5" }}>Start →</Link>}
+            <div key={step.label} className="flex items-center gap-2.5 border-b border-line/60 py-2 last:border-b-0">
+              <span className={`flex h-[18px] w-[18px] items-center justify-center rounded-full border text-[11px] text-white ${step.done ? "border-ok bg-ok" : "border-line bg-transparent"}`}>
+                {step.done ? "✓" : ""}
+              </span>
+              <span className={`flex-1 text-[14px] ${step.done ? "text-mute" : "text-ink"}`}>{step.label}</span>
+              {!step.done && <Link href={step.href} className="text-[13px] text-accent no-underline">Start →</Link>}
             </div>
           ))}
         </section>
       )}
 
-      {goal !== "customers" && <div style={{ marginTop: 16 }}><ShareLink slug={tenant?.slug ?? ""} /></div>}
+      {goal !== "customers" && <div className="mt-4"><ShareLink slug={tenant?.slug ?? ""} /></div>}
 
-      <h2 style={{ fontSize: 16, margin: "1.5rem 0 0.75rem" }}>Your modules</h2>
-      <div style={grid}>
-        {yours.map((m) => {
-          const href = m.status === "available" && m.href ? m.href : `/modules/${m.slug}`;
-          return (
-            <div key={m.slug} style={{ ...card, margin: 0, opacity: m.status === "soon" ? 0.7 : 1 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Link href={href} style={{ fontSize: 14, fontWeight: 500, color: "#1f2933", textDecoration: "none" }}>{m.name}</Link>
-                <form action={disableModule}><input type="hidden" name="slug" value={m.slug} />
-                  <button type="submit" aria-label="Remove module" style={{ border: "none", background: "transparent", padding: "4px 10px", color: "#6f6685", cursor: "pointer", fontSize: 15, lineHeight: 1 }}>×</button></form>
-              </div>
-              <Link href={href} style={{ fontSize: 13, color: "#5f6b7a", textDecoration: "none", display: "block", marginTop: 4 }}>{m.desc}</Link>
+      <h2 className="mt-7 mb-3 text-[15px] font-semibold">Your modules</h2>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {yours.map((m) => (
+          <div key={m.slug} className="rounded-card border border-line bg-card p-4 transition-colors hover:border-ink/30">
+            <div className="flex items-center justify-between">
+              <Link href={m.status === "available" && m.href ? m.href : `/modules/${m.slug}`} className="text-[14px] font-medium text-ink no-underline">{m.name}</Link>
+              <form action={disableModule}><input type="hidden" name="slug" value={m.slug} />
+                <button type="submit" aria-label="Remove module" className="cursor-pointer rounded border-0 bg-transparent px-2 py-0.5 text-[15px] text-mute hover:text-bad">×</button></form>
             </div>
-          );
-        })}
+            <Link href={m.status === "available" && m.href ? m.href : `/modules/${m.slug}`} className="mt-1 block text-[12px] text-mute no-underline">{m.desc}</Link>
+          </div>
+        ))}
       </div>
 
       {available.length > 0 && (
         <>
-          <h2 style={{ fontSize: 16, margin: "1.75rem 0 0.75rem" }}>Add modules <span style={{ fontSize: 13, color: "#6f6685", fontWeight: 400 }}>· switch on what you need, when you need it</span></h2>
-          <div style={grid}>
+          <h2 className="mt-6 mb-3 text-[15px] font-semibold">Add modules <span className="font-normal text-mute">· switch on what you need</span></h2>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {available.map((m) => (
-              <div key={m.slug} style={{ ...card, margin: 0, background: "#f6f8fa" }}>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>{m.name}</div>
-                <div style={{ fontSize: 13, color: "#5f6b7a", margin: "2px 0 8px" }}>{m.desc}</div>
+              <div key={m.slug} className="rounded-card border border-dashed border-line bg-paper p-4">
+                <div className="text-[14px] font-medium">{m.name}</div>
+                <div className="mt-0.5 mb-2.5 text-[12px] text-mute">{m.desc}</div>
                 <form action={enableModule}><input type="hidden" name="slug" value={m.slug} />
-                  <SubmitButton style={{ fontSize: 13, padding: "5px 12px", borderRadius: 8, border: "0.5px solid #185fa5", background: "#fff", color: "#185fa5", fontWeight: 500, cursor: "pointer" }}>+ Add</SubmitButton></form>
+                  <button type="submit" className="cursor-pointer rounded-lg border border-line bg-card px-3 py-1 text-[12px] font-medium text-ink hover:border-ink/40">+ Add</button></form>
               </div>
             ))}
           </div>
         </>
       )}
 
-      <h2 style={{ fontSize: 16, margin: "1.75rem 0 0.75rem" }}>Platform tools</h2>
-      <ModuleGrid mods={platformModules} />
+      <p className="mt-7 text-[12px] text-mute">
+        Platform tools (coming soon):{" "}
+        {platformModules.map((m, i) => (
+          <span key={m.slug}>
+            {i > 0 && " · "}
+            <Link href={`/modules/${m.slug}`} className="text-mute underline decoration-line underline-offset-2 hover:text-ink">{m.name}</Link>
+          </span>
+        ))}
+      </p>
     </div>
   );
 }
-
-function ModuleGrid({ mods }: { mods: ModuleDef[] }) {
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
-      {mods.map((m) => {
-        const href = m.status === "available" && m.href ? m.href : `/modules/${m.slug}`;
-        return (
-          <Link key={m.slug} href={href} style={{ textDecoration: "none", color: "inherit" }}>
-            <div style={{ ...card, margin: 0, height: "100%", opacity: m.status === "soon" ? 0.6 : 1 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <strong style={{ fontSize: 14 }}>{m.name}</strong>
-                {m.status === "available" ? <span style={pill("#0f6e56", "#e1f5ee")}>ready</span> : <span style={pill("#888780", "#f1efe8")}>soon</span>}
-              </div>
-              <div style={{ fontSize: 13, color: "#5f6b7a", marginTop: 4 }}>{m.desc}</div>
-            </div>
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
-
-const card: React.CSSProperties = { background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1.1rem 1.25rem", marginTop: 16 };
-const grid: React.CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 };
-const pill = (color: string, bg: string): React.CSSProperties => ({ fontSize: 11, padding: "2px 8px", borderRadius: 20, background: bg, color });

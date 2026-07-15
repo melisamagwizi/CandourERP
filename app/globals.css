@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Candour "ink on paper" design tokens.
+   Monochrome ink, warm paper, hairline borders, one accent.
+   Semantic colours are reserved for meaning (money/status), never decoration. */
+@theme {
+  --color-ink: #141414;
+  --color-ink-2: #45423c;
+  --color-paper: #fafaf8;
+  --color-card: #ffffff;
+  --color-line: #e8e6e1;
+  --color-mute: #6b675f;
+  --color-accent: #185fa5;
+  --color-accent-bg: #e6f1fb;
+  --color-ok: #0f6e56;
+  --color-ok-bg: #e1f5ee;
+  --color-warn: #854f0b;
+  --color-warn-bg: #faeeda;
+  --color-bad: #a32d2d;
+  --color-bad-bg: #fcebeb;
+
+  --radius-card: 14px;
+  --radius-ctl: 10px;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}

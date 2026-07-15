@@ -1,40 +1,27 @@
-import Link from "next/link";
-import SubmitButton from "@/components/SubmitButton";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import * as s from "@/db/schema";
 import { requireAuth } from "@/auth/current";
 import { logout } from "@/auth/actions";
+import Sidebar from "@/components/Sidebar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await requireAuth();
-  const [tenant] = await db.select().from(s.tenants).where(eq(s.tenants.id, session.tenantId));
+  const [tenant] = await db
+    .select({ name: s.tenants.name, enabledModules: s.tenants.enabledModules })
+    .from(s.tenants).where(eq(s.tenants.id, session.tenantId));
 
   return (
     <div>
-      <header style={{ background: "#fff", borderBottom: "0.5px solid #d9e2ec" }}>
-        <div style={{ maxWidth: 880, margin: "0 auto", padding: "12px 1.5rem",
-          display: "flex", alignItems: "center", gap: 20 }}>
-          <Link href="/dashboard" style={{ fontWeight: 600, color: "#185fa5", textDecoration: "none" }}>Candour</Link>
-          <nav style={{ display: "flex", gap: 16, flex: 1, fontSize: 14 }}>
-            <Link href="/dashboard" style={navLink}>Home</Link>
-            <Link href="/invoices" style={navLink}>Invoices</Link>
-            <Link href="/finance" style={navLink}>Finance</Link>
-            <Link href="/customers" style={navLink}>Customers</Link>
-            <Link href="/products" style={navLink}>Products</Link>
-          </nav>
-          <span style={{ fontSize: 13, color: "#5f6b7a" }}>{tenant?.name} · {session.name}</span>
-          <form action={logout}>
-            <SubmitButton style={{ padding: "6px 11px", borderRadius: 8,
-              border: "0.5px solid #d9e2ec", background: "#fff", cursor: "pointer", fontSize: 13 }}>
-              Sign out
-            </SubmitButton>
-          </form>
-        </div>
-      </header>
-      <main style={{ maxWidth: 880, margin: "0 auto", padding: "2rem 1.5rem" }}>{children}</main>
+      <Sidebar
+        enabledSlugs={tenant?.enabledModules ?? null}
+        tenantName={tenant?.name ?? "Candour"}
+        userName={session.name}
+        logout={logout}
+      />
+      <main className="md:pl-60">
+        <div className="mx-auto max-w-5xl px-5 py-7 pb-24 md:px-8 md:pb-10">{children}</div>
+      </main>
     </div>
   );
 }
-
-const navLink: React.CSSProperties = { color: "#1f2933", textDecoration: "none" };

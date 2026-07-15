@@ -1,3 +1,8 @@
+import "./globals.css";
+import { Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"] });
+
 export const metadata = {
   title: "Candour ERP",
   description: "The light, all-in-one platform that runs an entrepreneur's business.",
@@ -6,7 +11,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning style={{ fontFamily: "system-ui, sans-serif", margin: 0, background: "#f6f8fa", color: "#1f2933" }}>
+      <body suppressHydrationWarning className={inter.className} style={{ margin: 0 }}>
         {children}
       </body>
     </html>
