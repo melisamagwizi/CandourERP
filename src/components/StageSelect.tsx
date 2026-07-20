@@ -23,7 +23,7 @@ export default function StageSelect({
       <input type="hidden" name="dealId" value={dealId} />
       <select name="stage" defaultValue={stage} onChange={() => ref.current?.requestSubmit()}
         style={{ width: "100%", marginTop: 8, padding: "5px 8px", borderRadius: 6,
-          border: "0.5px solid #d9e2ec", fontSize: 12, color: "#5f6b7a", background: "#fff" }}>
+          border: "1px solid #e8e6e1", fontSize: 12, color: "#6b675f", background: "#fff" }}>
         {STAGES.map((st) => <option key={st.value} value={st.value}>Move to: {st.label}</option>)}
       </select>
     </form>

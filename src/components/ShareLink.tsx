@@ -14,7 +14,7 @@ export default function ShareLink({ slug }: { slug: string }) {
   const share = () => window.open(`https://wa.me/?text=${encodeURIComponent("Get started with us: " + fullUrl())}`, "_blank");
 
   return (
-    <section style={{ background: "#e6f1fb", border: "0.5px solid #b5d4f4", borderRadius: 12, padding: "1rem 1.25rem", margin: "16px 0" }}>
+    <section style={{ background: "#e6f1fb", border: "1px solid #b5d4f4", borderRadius: 14, padding: "1rem 1.25rem", margin: "16px 0" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div>
           <div style={{ fontWeight: 500, color: "#185fa5" }}>Your public sign-up page</div>
@@ -33,6 +33,6 @@ export default function ShareLink({ slug }: { slug: string }) {
 }
 
 const btn: React.CSSProperties = {
-  padding: "7px 12px", borderRadius: 8, border: "0.5px solid #b5d4f4", background: "#fff",
+  padding: "7px 12px", borderRadius: 10, border: "1px solid #b5d4f4", background: "#fff",
   color: "#185fa5", fontSize: 13, fontWeight: 500, cursor: "pointer",
 };

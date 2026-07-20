@@ -39,20 +39,20 @@ export default async function InvoiceDetail({ params }: { params: Promise<{ id: 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "12px 0 4px" }}>
         <h1 style={{ fontSize: 22, margin: 0 }}>{inv.number}</h1>
         <span style={{ fontSize: 12, padding: "3px 10px", borderRadius: 999, background: "#f1efe8",
-          color: "#5f6b7a", textTransform: "capitalize" }}>{inv.status}</span>
+          color: "#6b675f", textTransform: "capitalize" }}>{inv.status}</span>
       </div>
-      <p style={{ color: "#5f6b7a", marginTop: 0 }}>Bill to {acct?.name ?? "—"}{acct?.billingEmail ? ` · ${acct.billingEmail}` : ""}</p>
+      <p style={{ color: "#6b675f", marginTop: 0 }}>Bill to {acct?.name ?? "—"}{acct?.billingEmail ? ` · ${acct.billingEmail}` : ""}</p>
 
-      <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, overflow: "hidden", marginTop: 12 }}>
+      <section style={{ background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, overflow: "hidden", marginTop: 12 }}>
         {lines.map((l) => (
           <div key={l.id} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12,
-            padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6" }}>
-            <span>{l.description} <span style={{ color: "#888", fontSize: 12 }}>× {l.qty}</span></span>
-            <span style={{ color: "#5f6b7a" }}>{money(l.unitPriceMinor)}</span>
+            padding: "11px 1.25rem", borderTop: "1px solid #f1efec" }}>
+            <span>{l.description} <span style={{ color: "#8a867e", fontSize: 12 }}>× {l.qty}</span></span>
+            <span style={{ color: "#6b675f" }}>{money(l.unitPriceMinor)}</span>
             <span style={{ fontWeight: 500, textAlign: "right" }}>{money(l.lineTotalMinor)}</span>
           </div>
         ))}
-        <div style={{ padding: "12px 1.25rem", borderTop: "0.5px solid #eef2f6", background: "#f6f8fa" }}>
+        <div style={{ padding: "12px 1.25rem", borderTop: "1px solid #f1efec", background: "#f7f6f3" }}>
           <Row label="Subtotal" value={money(inv.subtotalMinor)} />
           <Row label="Tax" value={money(inv.taxMinor)} />
           <Row label="Total" value={money(inv.totalMinor)} bold />
@@ -71,20 +71,20 @@ export default async function InvoiceDetail({ params }: { params: Promise<{ id: 
         )}
         {inv.status !== "paid" && inv.status !== "void" && (
           <form action={markInvoicePaid}><input type="hidden" name="invoiceId" value={inv.id} />
-            <SubmitButton style={{ ...btn, borderColor: "#185fa5", color: "#fff", background: "#185fa5" }}>Mark paid</SubmitButton></form>
+            <SubmitButton style={{ ...btn, borderColor: "#185fa5", color: "#fff", background: "#141414" }}>Mark paid</SubmitButton></form>
         )}
       </div>
 
       {inv.status !== "paid" && inv.status !== "void" && (
         <form action={recordPayment} style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 12 }}>
           <input type="hidden" name="invoiceId" value={inv.id} />
-          <span style={{ fontSize: 13, color: "#5f6b7a" }}>Record a payment:</span>
+          <span style={{ fontSize: 13, color: "#6b675f" }}>Record a payment:</span>
           <input name="amount" type="number" step="0.01" min="0" defaultValue={(outstanding / 100).toFixed(2)} style={{ ...btn, width: 110, cursor: "text" }} />
           <SubmitButton style={btn}>Record</SubmitButton>
         </form>
       )}
 
-      <p style={{ fontSize: 12, color: "#6f6685", marginTop: 14 }}>
+      <p style={{ fontSize: 12, color: "#6b675f", marginTop: 14 }}>
         WhatsApp and email open with the message pre-filled, sent from your own account. Automated server-side
         delivery (WhatsApp Business API) comes with billing setup.
       </p>
@@ -95,13 +95,13 @@ export default async function InvoiceDetail({ params }: { params: Promise<{ id: 
 function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0",
-      fontWeight: bold ? 600 : 400, fontSize: bold ? 15 : 14, color: bold ? "#1f2933" : "#5f6b7a" }}>
+      fontWeight: bold ? 600 : 400, fontSize: bold ? 15 : 14, color: bold ? "#141414" : "#6b675f" }}>
       <span>{label}</span><span>{value}</span>
     </div>
   );
 }
 
 const btn: React.CSSProperties = {
-  padding: "8px 14px", borderRadius: 8, border: "0.5px solid #d9e2ec", background: "#fff",
-  color: "#1f2933", fontSize: 13, fontWeight: 500, cursor: "pointer", textDecoration: "none",
+  padding: "8px 14px", borderRadius: 10, border: "1px solid #e8e6e1", background: "#fff",
+  color: "#141414", fontSize: 13, fontWeight: 500, cursor: "pointer", textDecoration: "none",
 };

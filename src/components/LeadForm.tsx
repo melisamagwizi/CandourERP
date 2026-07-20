@@ -6,9 +6,9 @@ import { captureLead, type LeadState } from "@/data/public";
 const initial: LeadState = { ok: false, error: null };
 const input: React.CSSProperties = {
   display: "block", width: "100%", boxSizing: "border-box", marginTop: 4,
-  padding: "10px 12px", borderRadius: 8, border: "0.5px solid #d9e2ec", fontSize: 14, color: "#1f2933",
+  padding: "10px 12px", borderRadius: 10, border: "1px solid #e8e6e1", fontSize: 14, color: "#141414",
 };
-const label: React.CSSProperties = { fontSize: 13, color: "#5f6b7a", display: "block", marginBottom: 12 };
+const label: React.CSSProperties = { fontSize: 13, color: "#6b675f", display: "block", marginBottom: 12 };
 
 export default function LeadForm({ slug, items }: { slug: string; items: string[] }) {
   const [state, action, pending] = useActionState(captureLead, initial);
@@ -44,7 +44,7 @@ export default function LeadForm({ slug, items }: { slug: string; items: string[
       </label>
       {state.error && <p style={{ color: "#a32d2d", fontSize: 13 }}>{state.error}</p>}
       <button type="submit" disabled={pending} style={{ width: "100%", marginTop: 6, padding: "13px",
-        borderRadius: 10, border: "none", background: "#185fa5", color: "#fff", fontWeight: 600, fontSize: 15,
+        borderRadius: 10, border: "none", background: "#141414", color: "#fff", fontWeight: 600, fontSize: 15,
         cursor: "pointer", opacity: pending ? 0.7 : 1 }}>
         {pending ? "Sending…" : "Get started"}
       </button>

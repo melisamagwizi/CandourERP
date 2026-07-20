@@ -52,7 +52,7 @@ export default async function FinancePage() {
   return (
     <div>
       <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>Finance</h1>
-      <p style={{ color: "#5f6b7a", marginTop: 0 }}>Your money in, money out, and where you stand.</p>
+      <p style={{ color: "#6b675f", marginTop: 0 }}>Your money in, money out, and where you stand.</p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, margin: "16px 0" }}>
         <div style={metric}><div style={mlabel}>Money in</div><div style={{ ...mvalue, color: "#0f6e56" }}>{money(d.inflow)}</div></div>
@@ -60,7 +60,7 @@ export default async function FinancePage() {
         <div style={{ ...metric, background: "#e6f1fb" }}><div style={{ ...mlabel, color: "#185fa5" }}>Cash position</div><div style={{ ...mvalue, color: "#185fa5" }}>{money(cash)}</div></div>
       </div>
 
-      <section style={{ ...card, marginBottom: 16, background: "#e6f1fb", border: "0.5px solid #b5d4f4" }}>
+      <section style={{ ...card, marginBottom: 16, background: "#e6f1fb", border: "1px solid #b5d4f4" }}>
         <strong style={{ fontSize: 15, color: "#185fa5" }}>Runway</strong>
         <div style={{ display: "flex", gap: 24, flexWrap: "wrap", marginTop: 8, fontSize: 13, color: "#0c447c" }}>
           <span>Avg monthly spend (90d): <strong>{money(avgMonthlySpend)}</strong></span>
@@ -81,22 +81,22 @@ export default async function FinancePage() {
             <input aria-label="Monthly $" name="amount" type="number" step="0.01" min="0" required placeholder="Monthly $" style={{ ...input, width: 110 }} />
             <SubmitButton style={primaryBtn}>Set</SubmitButton>
           </form>
-          {d.budgets.length === 0 && <div style={{ fontSize: 13, color: "#5f6b7a" }}>No budgets yet — set one to track spending.</div>}
+          {d.budgets.length === 0 && <div style={{ fontSize: 13, color: "#6b675f" }}>No budgets yet — set one to track spending.</div>}
           {d.budgets.map((b) => {
             const spent = d.monthSpend.find((m) => m.category.toLowerCase() === b.category.toLowerCase())?.spent ?? 0;
             const over = spent > b.monthlyMinor && b.monthlyMinor > 0;
             const pct = b.monthlyMinor > 0 ? Math.min(100, Math.round((spent / b.monthlyMinor) * 100)) : 0;
             return (
-              <div key={b.id} style={{ padding: "8px 0", borderTop: "0.5px solid #eef2f6" }}>
+              <div key={b.id} style={{ padding: "8px 0", borderTop: "1px solid #f1efec" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
                   <span>{b.category}</span>
                   <span style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <span style={{ color: over ? "#a32d2d" : "#5f6b7a" }}>{money(spent)} / {money(b.monthlyMinor)}{over ? " · over" : ""}</span>
+                    <span style={{ color: over ? "#a32d2d" : "#6b675f" }}>{money(spent)} / {money(b.monthlyMinor)}{over ? " · over" : ""}</span>
                     <form action={deleteBudget}><input type="hidden" name="id" value={b.id} />
-                      <button type="submit" aria-label="Remove budget" style={{ border: "none", background: "transparent", padding: "4px 10px", color: "#6f6685", cursor: "pointer" }}>×</button></form>
+                      <button type="submit" aria-label="Remove budget" style={{ border: "none", background: "transparent", padding: "4px 10px", color: "#6b675f", cursor: "pointer" }}>×</button></form>
                   </span>
                 </div>
-                <div style={{ height: 6, background: "#eef2f6", borderRadius: 3 }}>
+                <div style={{ height: 6, background: "#f1efec", borderRadius: 3 }}>
                   <div style={{ width: pct + "%", height: "100%", background: over ? "#e24b4a" : "#1d9e75", borderRadius: 3 }} />
                 </div>
               </div>
@@ -106,9 +106,9 @@ export default async function FinancePage() {
 
         <section style={card}>
           <strong style={{ fontSize: 15 }}>Top customers by revenue</strong>
-          {d.topCustomers.length === 0 && <div style={{ fontSize: 13, color: "#5f6b7a", marginTop: 8 }}>No payments recorded yet.</div>}
+          {d.topCustomers.length === 0 && <div style={{ fontSize: 13, color: "#6b675f", marginTop: 8 }}>No payments recorded yet.</div>}
           {d.topCustomers.map((c, i) => (
-            <div key={c.name} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderTop: "0.5px solid #eef2f6", fontSize: 13 }}>
+            <div key={c.name} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderTop: "1px solid #f1efec", fontSize: 13 }}>
               <span>{i + 1}. {c.name}</span><span style={{ fontWeight: 500 }}>{money(c.total)}</span>
             </div>
           ))}
@@ -123,10 +123,10 @@ export default async function FinancePage() {
       </form>
 
       <section style={{ ...card, padding: 0, overflow: "hidden" }}>
-        {d.recent.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#5f6b7a" }}>No transactions yet.</div>}
+        {d.recent.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#6b675f" }}>No transactions yet.</div>}
         {d.recent.map((t) => (
-          <div key={t.id} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6" }}>
-            <span>{t.description ?? (t.type === "inflow" ? "Income" : "Expense")}<span style={{ fontSize: 12, color: "#888" }}>{t.category ? ` · ${t.category}` : ""}</span></span>
+          <div key={t.id} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "1px solid #f1efec" }}>
+            <span>{t.description ?? (t.type === "inflow" ? "Income" : "Expense")}<span style={{ fontSize: 12, color: "#8a867e" }}>{t.category ? ` · ${t.category}` : ""}</span></span>
             <span style={{ fontSize: 12, color: t.type === "inflow" ? "#0f6e56" : "#a32d2d", textTransform: "capitalize" }}>{t.type}</span>
             <span style={{ fontWeight: 500, textAlign: "right", color: t.type === "inflow" ? "#0f6e56" : "#a32d2d" }}>{t.type === "inflow" ? "+" : "−"}{money(t.amountMinor)}</span>
           </div>
@@ -136,6 +136,6 @@ export default async function FinancePage() {
   );
 }
 
-const metric: React.CSSProperties = { background: "#f6f8fa", borderRadius: 10, padding: "1rem" };
-const mlabel: React.CSSProperties = { fontSize: 13, color: "#5f6b7a" };
+const metric: React.CSSProperties = { background: "#f7f6f3", borderRadius: 10, padding: "1rem" };
+const mlabel: React.CSSProperties = { fontSize: 13, color: "#6b675f" };
 const mvalue: React.CSSProperties = { fontSize: 22, fontWeight: 500, marginTop: 2 };

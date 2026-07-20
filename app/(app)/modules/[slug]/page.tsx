@@ -21,9 +21,9 @@ export default async function ModulePreview({ params }: { params: Promise<{ slug
         <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", padding: "3px 9px",
           borderRadius: 999, background: "#f1efe8", color: "#888780" }}>COMING SOON</span>
       </div>
-      <p style={{ color: "#5f6b7a", marginTop: 0 }}>{mod.desc}</p>
+      <p style={{ color: "#6b675f", marginTop: 0 }}>{mod.desc}</p>
 
-      <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1.25rem 1.5rem", marginTop: 12 }}>
+      <section style={{ background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, padding: "1.25rem 1.5rem", marginTop: 12 }}>
         <strong style={{ fontSize: 15 }}>What this module will include</strong>
         <ul style={{ margin: "12px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
           {(mod.planned ?? ["On the roadmap — details coming soon."]).map((p) => (
@@ -34,7 +34,7 @@ export default async function ModulePreview({ params }: { params: Promise<{ slug
         </ul>
       </section>
 
-      <p style={{ fontSize: 13, color: "#6f6685", marginTop: 16 }}>
+      <p style={{ fontSize: 13, color: "#6b675f", marginTop: 16 }}>
         This module is part of the Candour roadmap and will switch on automatically when it&apos;s ready.
         In the meantime, you can keep capturing your{" "}
         <Link href="/customers" style={{ color: "#185fa5" }}>customers</Link>,{" "}

@@ -27,19 +27,19 @@ export default async function Storefront({ params }: { params: Promise<{ slug: s
   return (
     <main style={{ maxWidth: 760, margin: "0 auto", padding: "3rem 1.5rem 4rem" }}>
       <header style={{ textAlign: "center", marginBottom: 32 }}>
-        <div style={{ width: 56, height: 56, borderRadius: 14, background: "#185fa5", color: "#fff", display: "flex",
+        <div style={{ width: 56, height: 56, borderRadius: 14, background: "#141414", color: "#fff", display: "flex",
           alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 600, margin: "0 auto 14px" }}>
           {tenant.name.slice(0, 1).toUpperCase()}
         </div>
         <h1 style={{ fontSize: 30, margin: "0 0 8px" }}>{tenant.name}</h1>
-        {tenant.mission && <p style={{ fontSize: 17, color: "#5f6b7a", margin: 0 }}>{tenant.mission}</p>}
+        {tenant.mission && <p style={{ fontSize: 17, color: "#6b675f", margin: 0 }}>{tenant.mission}</p>}
       </header>
 
       {(services.length > 0 || goods.length > 0) && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 24, marginBottom: 32 }}>
           {services.length > 0 && (
             <section>
-              <h2 style={{ fontSize: 15, color: "#5f6b7a", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 10px" }}>Services</h2>
+              <h2 style={{ fontSize: 15, color: "#6b675f", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 10px" }}>Services</h2>
               {services.map((p) => (
                 <div key={p.id} style={{ ...cardStyle, display: "flex", justifyContent: "space-between", gap: 10 }}>
                   <span style={{ fontWeight: 500 }}>{p.name}</span>
@@ -50,7 +50,7 @@ export default async function Storefront({ params }: { params: Promise<{ slug: s
           )}
           {goods.length > 0 && (
             <section>
-              <h2 style={{ fontSize: 15, color: "#5f6b7a", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 10px" }}>Products</h2>
+              <h2 style={{ fontSize: 15, color: "#6b675f", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 10px" }}>Products</h2>
               {goods.map((p) => (
                 <div key={p.id} style={{ ...cardStyle, display: "flex", justifyContent: "space-between", gap: 10 }}>
                   <span style={{ fontWeight: 500 }}>{p.name}</span>
@@ -62,17 +62,17 @@ export default async function Storefront({ params }: { params: Promise<{ slug: s
         </div>
       )}
 
-      <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 16, padding: "1.75rem", maxWidth: 460, margin: "0 auto" }}>
+      <section style={{ background: "#fff", border: "1px solid #e8e6e1", borderRadius: 16, padding: "1.75rem", maxWidth: 460, margin: "0 auto" }}>
         <h2 style={{ fontSize: 20, margin: "0 0 4px", textAlign: "center" }}>Get started</h2>
-        <p style={{ fontSize: 14, color: "#5f6b7a", margin: "0 0 18px", textAlign: "center" }}>Leave your details and we&apos;ll reach out.</p>
+        <p style={{ fontSize: 14, color: "#6b675f", margin: "0 0 18px", textAlign: "center" }}>Leave your details and we&apos;ll reach out.</p>
         <LeadForm slug={tenant.slug} items={items} />
       </section>
 
-      <p style={{ textAlign: "center", fontSize: 12, color: "#6f6685", marginTop: 28 }}>Powered by Candour</p>
+      <p style={{ textAlign: "center", fontSize: 12, color: "#6b675f", marginTop: 28 }}>Powered by Candour</p>
     </main>
   );
 }
 
 const cardStyle: React.CSSProperties = {
-  background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 10, padding: "11px 14px", marginBottom: 8,
+  background: "#fff", border: "1px solid #e8e6e1", borderRadius: 10, padding: "11px 14px", marginBottom: 8,
 };

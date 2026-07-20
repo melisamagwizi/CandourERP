@@ -32,7 +32,7 @@ export default async function HrmPage() {
   return (
     <div>
       <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>People</h1>
-      <p style={{ color: "#5f6b7a", marginTop: 0 }}>Your team and their leave.</p>
+      <p style={{ color: "#6b675f", marginTop: 0 }}>Your team and their leave.</p>
 
       <form action={createEmployee} style={{ display: "flex", gap: 8, flexWrap: "wrap", ...card, margin: "16px 0" }}>
         <input aria-label="Full name" name="name" required placeholder="Full name" style={{ ...input, flex: 2, minWidth: 150 }} />
@@ -44,15 +44,15 @@ export default async function HrmPage() {
       </form>
 
       <section style={{ ...card, padding: 0, marginBottom: 20 }}>
-        {employees.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#5f6b7a" }}>No employees yet.</div>}
+        {employees.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#6b675f" }}>No employees yet.</div>}
         {employees.map((e) => (
-          <div key={e.id} style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6" }}>
-            <span style={{ fontWeight: 500 }}>{e.name}<span style={{ fontSize: 12, color: "#888" }}>{e.title ? ` · ${e.title}` : ""}</span></span>
-            <span style={{ fontSize: 13, color: "#5f6b7a" }}>
-              {e.department ?? "—"} · <span style={{ color: (e.leaveEntitlementDays - (usedByEmp.get(e.id) ?? 0)) <= 0 ? "#a32d2d" : "#5f6b7a" }}>
+          <div key={e.id} style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "1px solid #f1efec" }}>
+            <span style={{ fontWeight: 500 }}>{e.name}<span style={{ fontSize: 12, color: "#8a867e" }}>{e.title ? ` · ${e.title}` : ""}</span></span>
+            <span style={{ fontSize: 13, color: "#6b675f" }}>
+              {e.department ?? "—"} · <span style={{ color: (e.leaveEntitlementDays - (usedByEmp.get(e.id) ?? 0)) <= 0 ? "#a32d2d" : "#6b675f" }}>
                 {e.leaveEntitlementDays - (usedByEmp.get(e.id) ?? 0)} of {e.leaveEntitlementDays}d leave left</span>
             </span>
-            <span style={{ fontSize: 12, color: "#5f6b7a", textTransform: "capitalize" }}>{e.status.replace("_", " ")}</span>
+            <span style={{ fontSize: 12, color: "#6b675f", textTransform: "capitalize" }}>{e.status.replace("_", " ")}</span>
             <span style={{ fontSize: 13, textAlign: "right" }}>{money(e.salaryMinor)}</span>
           </div>
         ))}
@@ -72,10 +72,10 @@ export default async function HrmPage() {
         </form>
       )}
       <section style={{ ...card, padding: 0 }}>
-        {leave.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#5f6b7a" }}>No leave requests.</div>}
+        {leave.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#6b675f" }}>No leave requests.</div>}
         {leave.map((l) => (
-          <div key={l.id} style={{ display: "grid", gridTemplateColumns: "1.5fr auto auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6" }}>
-            <span>{l.who ?? "—"} <span style={{ fontSize: 12, color: "#888" }}>· {l.type}, {l.days}d</span></span>
+          <div key={l.id} style={{ display: "grid", gridTemplateColumns: "1.5fr auto auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "1px solid #f1efec" }}>
+            <span>{l.who ?? "—"} <span style={{ fontSize: 12, color: "#8a867e" }}>· {l.type}, {l.days}d</span></span>
             <span style={{ fontSize: 12, color: leaveColor[l.status], textTransform: "capitalize" }}>{l.status}</span>
             {l.status === "pending" ? (() => {
               const emp = employees.find((e) => e.id === l.employeeId);
@@ -86,9 +86,9 @@ export default async function HrmPage() {
                   {overBalance
                     ? <span style={{ fontSize: 12, color: "#854f0b" }} title={`Only ${remaining} day(s) left`}>exceeds balance ({remaining}d left)</span>
                     : <form action={decideLeave}><input type="hidden" name="leaveId" value={l.id} /><input type="hidden" name="decision" value="approved" />
-                        <SubmitButton style={{ fontSize: 12, padding: "4px 10px", borderRadius: 6, border: "0.5px solid #1d9e75", background: "#e1f5ee", color: "#0f6e56", cursor: "pointer" }}>Approve</SubmitButton></form>}
+                        <SubmitButton style={{ fontSize: 12, padding: "4px 10px", borderRadius: 6, border: "1px solid #1d9e75", background: "#e1f5ee", color: "#0f6e56", cursor: "pointer" }}>Approve</SubmitButton></form>}
                   <form action={decideLeave}><input type="hidden" name="leaveId" value={l.id} /><input type="hidden" name="decision" value="rejected" />
-                    <SubmitButton style={{ fontSize: 12, padding: "4px 10px", borderRadius: 6, border: "0.5px solid #e2b4b4", background: "#fff", color: "#a32d2d", cursor: "pointer" }}>Reject</SubmitButton></form>
+                    <SubmitButton style={{ fontSize: 12, padding: "4px 10px", borderRadius: 6, border: "1px solid #e2b4b4", background: "#fff", color: "#a32d2d", cursor: "pointer" }}>Reject</SubmitButton></form>
                 </>
               );
             })() : <><span /><span /></>}

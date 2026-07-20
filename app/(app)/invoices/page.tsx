@@ -41,28 +41,28 @@ export default async function InvoicesPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>Invoices</h1>
-          <p style={{ color: "#5f6b7a", marginTop: 0 }}>Bill your customers and track what you&apos;re owed.</p>
+          <p style={{ color: "#6b675f", marginTop: 0 }}>Bill your customers and track what you&apos;re owed.</p>
         </div>
-        <Link href="/invoices/new" style={{ padding: "9px 16px", borderRadius: 8, background: "#185fa5", color: "#fff", fontWeight: 500, textDecoration: "none" }}>New invoice</Link>
+        <Link href="/invoices/new" style={{ padding: "9px 16px", borderRadius: 10, background: "#141414", color: "#fff", fontWeight: 500, textDecoration: "none" }}>New invoice</Link>
       </div>
 
-      <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, overflow: "hidden", marginTop: 16 }}>
-        {rows.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#5f6b7a" }}>No invoices yet — create your first.</div>}
+      <section style={{ background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, overflow: "hidden", marginTop: 16 }}>
+        {rows.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#6b675f" }}>No invoices yet — create your first.</div>}
         {rows.map((inv) => {
           const unpaid = inv.status !== "paid" && inv.status !== "void";
           const overdue = unpaid && inv.dueDate && inv.dueDate < today;
           const days = overdue ? Math.floor((Date.parse(today) - Date.parse(inv.dueDate!)) / 86400_000) : 0;
           return (
-            <div key={inv.id} style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr auto auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6" }}>
+            <div key={inv.id} style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr auto auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "1px solid #f1efec" }}>
               <Link href={`/invoices/${inv.id}`} style={{ fontWeight: 500, color: "#185fa5", textDecoration: "none" }}>{inv.number}</Link>
-              <span style={{ fontSize: 13, color: "#5f6b7a" }}>{inv.customer ?? "—"}</span>
+              <span style={{ fontSize: 13, color: "#6b675f" }}>{inv.customer ?? "—"}</span>
               <span style={{ fontSize: 12, color: overdue ? "#a32d2d" : statusColor[inv.status], textTransform: "capitalize" }}>
                 {overdue ? `Overdue ${days}d` : inv.status}
               </span>
               <span style={{ fontWeight: 500, textAlign: "right" }}>${(inv.totalMinor / 100).toFixed(2)}</span>
               {unpaid ? (
                 <form action={markInvoicePaid}><input type="hidden" name="invoiceId" value={inv.id} />
-                  <SubmitButton style={{ padding: "5px 11px", borderRadius: 8, border: "0.5px solid #1d9e75", background: "#e1f5ee", color: "#0f6e56", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Mark paid</SubmitButton></form>
+                  <SubmitButton style={{ padding: "5px 11px", borderRadius: 10, border: "1px solid #1d9e75", background: "#e1f5ee", color: "#0f6e56", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Mark paid</SubmitButton></form>
               ) : <span style={{ fontSize: 12, color: "#0f6e56", textAlign: "right" }}>✓ paid</span>}
             </div>
           );
@@ -77,7 +77,7 @@ export default async function InvoicesPage() {
       </div>
 
       {accounts.length > 0 && products.length > 0 && (
-        <form action={createRecurring} style={{ display: "flex", gap: 8, flexWrap: "wrap", background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12 }}>
+        <form action={createRecurring} style={{ display: "flex", gap: 8, flexWrap: "wrap", background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, padding: "1rem 1.25rem", marginBottom: 12 }}>
           <select name="accountId" required style={{ ...input, flex: 1, minWidth: 140 }}>{accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}</select>
           <select name="productId" required style={{ ...input, flex: 1, minWidth: 140 }}>{products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
           <select name="cadence" style={{ ...input }}><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="annual">Annual</option></select>
@@ -85,14 +85,14 @@ export default async function InvoicesPage() {
         </form>
       )}
 
-      <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, overflow: "hidden" }}>
-        {schedules.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#5f6b7a" }}>No retainers yet. Add one to bill a customer automatically each period.</div>}
+      <section style={{ background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, overflow: "hidden" }}>
+        {schedules.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#6b675f" }}>No retainers yet. Add one to bill a customer automatically each period.</div>}
         {schedules.map((sc) => (
-          <div key={sc.id} style={{ display: "grid", gridTemplateColumns: "1.4fr 1.4fr auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6", fontSize: 13 }}>
+          <div key={sc.id} style={{ display: "grid", gridTemplateColumns: "1.4fr 1.4fr auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "1px solid #f1efec", fontSize: 13 }}>
             <span style={{ fontWeight: 500 }}>{sc.customer ?? "—"}</span>
-            <span style={{ color: "#5f6b7a" }}>{sc.item ?? "—"}</span>
-            <span style={{ color: "#5f6b7a", textTransform: "capitalize" }}>{sc.cadence}</span>
-            <span style={{ color: sc.nextRunOn && sc.nextRunOn <= today ? "#a32d2d" : "#5f6b7a", textAlign: "right" }}>next: {sc.nextRunOn}</span>
+            <span style={{ color: "#6b675f" }}>{sc.item ?? "—"}</span>
+            <span style={{ color: "#6b675f", textTransform: "capitalize" }}>{sc.cadence}</span>
+            <span style={{ color: sc.nextRunOn && sc.nextRunOn <= today ? "#a32d2d" : "#6b675f", textAlign: "right" }}>next: {sc.nextRunOn}</span>
           </div>
         ))}
       </section>

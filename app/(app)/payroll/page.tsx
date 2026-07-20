@@ -30,26 +30,26 @@ export default async function PayrollPage() {
   return (
     <div>
       <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>Payroll</h1>
-      <p style={{ color: "#5f6b7a", marginTop: 0 }}>Run pay for your team and generate payslips.</p>
+      <p style={{ color: "#6b675f", marginTop: 0 }}>Run pay for your team and generate payslips.</p>
 
       <form action={runPayroll} style={{ display: "flex", gap: 8, alignItems: "center", ...card, margin: "16px 0" }}>
         <input aria-label="2026-07" name="period" defaultValue={thisMonth} placeholder="2026-07" style={{ ...input, width: 130 }} />
         <SubmitButton style={primaryBtn} disabled={activeCount === 0}>Run payroll ({activeCount} active)</SubmitButton>
-        <span style={{ fontSize: 12, color: "#6f6685" }}>Pay is calculated from the components below.</span>
+        <span style={{ fontSize: 12, color: "#6b675f" }}>Pay is calculated from the components below.</span>
       </form>
 
-      <section style={{ ...card, marginBottom: 16, background: isZW ? "#e1f5ee" : "#fff", border: isZW ? "0.5px solid #9fe1cb" : "0.5px solid #d9e2ec" }}>
+      <section style={{ ...card, marginBottom: 16, background: isZW ? "#e1f5ee" : "#fff", border: isZW ? "1px solid #9fe1cb" : "1px solid #e8e6e1" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           <div>
             <strong style={{ fontSize: 15 }}>Statutory pack: {isZW ? "Zimbabwe 🇿🇼" : "None"}</strong>
-            <div style={{ fontSize: 12, color: "#5f6b7a", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: "#6b675f", marginTop: 2 }}>
               {isZW
                 ? "PAYE (banded) + AIDS levy 3% + NSSA 4.5% are applied automatically. Illustrative rates — verify against current ZIMRA tables."
                 : "Apply your country's statutory deductions in one click."}
             </div>
           </div>
           <form action={isZW ? clearPayrollRegion : applyZimbabweSetup}>
-            <SubmitButton style={{ padding: "8px 14px", borderRadius: 8, border: "0.5px solid " + (isZW ? "#e2b4b4" : "#185fa5"), background: "#fff", color: isZW ? "#a32d2d" : "#185fa5", fontWeight: 500, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
+            <SubmitButton style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid " + (isZW ? "#e2b4b4" : "#185fa5"), background: "#fff", color: isZW ? "#a32d2d" : "#185fa5", fontWeight: 500, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
               {isZW ? "Remove" : "Apply Zimbabwe setup"}
             </SubmitButton>
           </form>
@@ -58,7 +58,7 @@ export default async function PayrollPage() {
 
       <section style={{ ...card, marginBottom: 16 }}>
         <strong style={{ fontSize: 15 }}>Deductions &amp; earnings</strong>
-        <p style={{ fontSize: 12, color: "#6f6685", margin: "4px 0 10px" }}>Configure how pay is worked out — e.g. PAYE 15%, pension 5%, or a fixed allowance.</p>
+        <p style={{ fontSize: 12, color: "#6b675f", margin: "4px 0 10px" }}>Configure how pay is worked out — e.g. PAYE 15%, pension 5%, or a fixed allowance.</p>
         <form action={createPayComponent} style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
           <input aria-label="e.g. PAYE" name="name" required placeholder="e.g. PAYE" style={{ ...input, flex: 1, minWidth: 120 }} />
           <select name="kind" style={input}><option value="deduction">Deduction</option><option value="earning">Earning</option></select>
@@ -66,30 +66,30 @@ export default async function PayrollPage() {
           <input aria-label="15" name="value" type="number" step="0.01" min="0" placeholder="15" style={{ ...input, width: 90 }} />
           <SubmitButton style={primaryBtn}>Add</SubmitButton>
         </form>
-        {comps.length === 0 && <div style={{ fontSize: 13, color: "#5f6b7a" }}>No components yet — net pay equals gross until you add deductions.</div>}
+        {comps.length === 0 && <div style={{ fontSize: 13, color: "#6b675f" }}>No components yet — net pay equals gross until you add deductions.</div>}
         {comps.map((c) => (
-          <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderTop: "0.5px solid #eef2f6", fontSize: 13 }}>
+          <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderTop: "1px solid #f1efec", fontSize: 13 }}>
             <span>{c.name} <span style={{ fontSize: 11, color: c.kind === "earning" ? "#0f6e56" : "#a32d2d" }}>· {c.kind}</span></span>
             <span style={{ display: "flex", gap: 12, alignItems: "center" }}>
-              <span style={{ color: "#5f6b7a" }}>{c.method === "percent" ? `${(c.rateBps ?? 0) / 100}%` : money(c.amountMinor ?? 0)}</span>
+              <span style={{ color: "#6b675f" }}>{c.method === "percent" ? `${(c.rateBps ?? 0) / 100}%` : money(c.amountMinor ?? 0)}</span>
               <form action={deletePayComponent}><input type="hidden" name="id" value={c.id} />
-                <button type="submit" aria-label="Remove" style={{ border: "none", background: "transparent", padding: "4px 10px", color: "#6f6685", cursor: "pointer", fontSize: 15 }}>×</button></form>
+                <button type="submit" aria-label="Remove" style={{ border: "none", background: "transparent", padding: "4px 10px", color: "#6b675f", cursor: "pointer", fontSize: 15 }}>×</button></form>
             </span>
           </div>
         ))}
       </section>
 
-      {runs.length === 0 && <div style={{ ...card, color: "#5f6b7a" }}>No pay runs yet. Add employees in People, then run payroll.</div>}
+      {runs.length === 0 && <div style={{ ...card, color: "#6b675f" }}>No pay runs yet. Add employees in People, then run payroll.</div>}
       {runs.map((r) => (
         <section key={r.id} style={{ ...card, marginBottom: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
             <strong>{r.period}</strong>
-            <span style={{ fontSize: 13, color: "#5f6b7a" }}>Gross {money(r.grossMinor)} · Net {money(r.netMinor)}</span>
+            <span style={{ fontSize: 13, color: "#6b675f" }}>Gross {money(r.grossMinor)} · Net {money(r.netMinor)}</span>
           </div>
           {slipsByRun[r.id]?.map((p, i) => (
-            <div key={i} style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr", gap: 8, fontSize: 13, padding: "5px 0", borderTop: "0.5px solid #eef2f6" }}>
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr", gap: 8, fontSize: 13, padding: "5px 0", borderTop: "1px solid #f1efec" }}>
               <span>{p.name}</span>
-              <span style={{ color: "#5f6b7a" }}>Gross {money(p.gross)}</span>
+              <span style={{ color: "#6b675f" }}>Gross {money(p.gross)}</span>
               <span style={{ color: "#a32d2d" }}>−{money(p.ded)}</span>
               <span style={{ fontWeight: 500, textAlign: "right" }}>{money(p.net)}</span>
             </div>

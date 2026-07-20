@@ -23,7 +23,7 @@ export default async function AssetsPage() {
   return (
     <div>
       <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>Assets</h1>
-      <p style={{ color: "#5f6b7a", marginTop: 0 }}>Your equipment — who has it and where it stands.</p>
+      <p style={{ color: "#6b675f", marginTop: 0 }}>Your equipment — who has it and where it stands.</p>
 
       <form action={createAsset} style={{ display: "flex", gap: 8, flexWrap: "wrap", ...card, margin: "16px 0" }}>
         <input aria-label="Asset name" name="name" required placeholder="Asset name" style={{ ...input, flex: 2, minWidth: 150 }} />
@@ -35,11 +35,11 @@ export default async function AssetsPage() {
       </form>
 
       <section style={{ ...card, padding: 0 }}>
-        {assets.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#5f6b7a" }}>No assets yet.</div>}
+        {assets.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#6b675f" }}>No assets yet.</div>}
         {assets.map((a) => (
-          <div key={a.id} style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6" }}>
-            <span style={{ fontWeight: 500 }}>{a.name}<span style={{ fontSize: 12, color: "#888" }}>{a.category ? ` · ${a.category}` : ""}</span></span>
-            <span style={{ fontSize: 13, color: "#5f6b7a" }}>{a.assignedTo ?? "Unassigned"}</span>
+          <div key={a.id} style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "1px solid #f1efec" }}>
+            <span style={{ fontWeight: 500 }}>{a.name}<span style={{ fontSize: 12, color: "#8a867e" }}>{a.category ? ` · ${a.category}` : ""}</span></span>
+            <span style={{ fontSize: 13, color: "#6b675f" }}>{a.assignedTo ?? "Unassigned"}</span>
             <span style={{ fontSize: 13 }}>{money(a.acquisitionMinor)}</span>
             <SelectForm hidden={{ assetId: a.id }} name="status" value={a.status} action={updateAssetStatus} options={STATUS} />
           </div>

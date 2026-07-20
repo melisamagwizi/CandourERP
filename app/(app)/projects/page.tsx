@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 const money = (m: number) => "$" + (m / 100).toLocaleString(undefined, { maximumFractionDigits: 0 });
 const input: React.CSSProperties = {
-  padding: "9px 11px", borderRadius: 8, border: "0.5px solid #d9e2ec", fontSize: 14, color: "#1f2933",
+  padding: "9px 11px", borderRadius: 10, border: "1px solid #e8e6e1", fontSize: 14, color: "#141414",
 };
 
 export default async function ProjectsPage() {
@@ -30,29 +30,29 @@ export default async function ProjectsPage() {
   return (
     <div>
       <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>Projects</h1>
-      <p style={{ color: "#5f6b7a", marginTop: 0 }}>Plan and deliver work for your clients.</p>
+      <p style={{ color: "#6b675f", marginTop: 0 }}>Plan and deliver work for your clients.</p>
 
       <form action={createProject} style={{ display: "flex", gap: 8, flexWrap: "wrap",
-        background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1rem 1.25rem", margin: "16px 0" }}>
+        background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, padding: "1rem 1.25rem", margin: "16px 0" }}>
         <input aria-label="Project name" name="name" required placeholder="Project name" style={{ ...input, flex: 2, minWidth: 160 }} />
         <select name="accountId" style={{ ...input, flex: 1, minWidth: 140 }}>
           <option value="">Internal / no client</option>
           {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
         </select>
         <input aria-label="Budget" name="budget" type="number" step="0.01" min="0" placeholder="Budget" style={{ ...input, width: 120 }} />
-        <SubmitButton style={{ padding: "9px 16px", borderRadius: 8, border: "none",
-          background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add project</SubmitButton>
+        <SubmitButton style={{ padding: "9px 16px", borderRadius: 10, border: "none",
+          background: "#141414", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add project</SubmitButton>
       </form>
 
-      <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, overflow: "hidden" }}>
-        {projects.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#5f6b7a" }}>No projects yet — add your first above.</div>}
+      <section style={{ background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, overflow: "hidden" }}>
+        {projects.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#6b675f" }}>No projects yet — add your first above.</div>}
         {projects.map((p) => (
           <Link key={p.id} href={`/projects/${p.id}`} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto",
-            gap: 12, alignItems: "center", padding: "12px 1.25rem", borderTop: "0.5px solid #eef2f6",
+            gap: 12, alignItems: "center", padding: "12px 1.25rem", borderTop: "1px solid #f1efec",
             textDecoration: "none", color: "inherit" }}>
             <span style={{ fontWeight: 500, color: "#185fa5" }}>{p.name}</span>
-            <span style={{ fontSize: 13, color: "#5f6b7a" }}>{p.customer ?? "Internal"}</span>
-            <span style={{ fontSize: 12, color: "#5f6b7a" }}>{p.open} open</span>
+            <span style={{ fontSize: 13, color: "#6b675f" }}>{p.customer ?? "Internal"}</span>
+            <span style={{ fontSize: 12, color: "#6b675f" }}>{p.open} open</span>
             <span style={{ fontSize: 13, textAlign: "right" }}>{money(p.budgetMinor)}</span>
           </Link>
         ))}

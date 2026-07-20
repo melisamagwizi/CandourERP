@@ -10,9 +10,9 @@ const PLAN = { name: "Candour Pro", price: "$29/mo", trialDays: 7 };
 
 const field: React.CSSProperties = {
   width: "100%", boxSizing: "border-box", marginTop: 6, padding: "10px 12px",
-  borderRadius: 8, border: "0.5px solid #d9e2ec", fontSize: 14, color: "#1f2933", background: "#fff",
+  borderRadius: 10, border: "1px solid #e8e6e1", fontSize: 14, color: "#141414", background: "#fff",
 };
-const labelStyle: React.CSSProperties = { fontSize: 13, color: "#5f6b7a", fontWeight: 500 };
+const labelStyle: React.CSSProperties = { fontSize: 13, color: "#6b675f", fontWeight: 500 };
 
 export default async function StartTrialPage() {
   const session = await requireAuth();
@@ -20,13 +20,13 @@ export default async function StartTrialPage() {
   const [first, ...rest] = session.name.split(" ");
 
   return (
-    <main style={{ minHeight: "100vh", background: "#eef1f5", padding: "3rem 1.5rem" }}>
+    <main style={{ minHeight: "100vh", background: "#fafaf8", padding: "3rem 1.5rem" }}>
       <div style={{ maxWidth: 1040, margin: "0 auto", display: "grid",
         gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 36, alignItems: "start" }}>
 
         {/* Left — confirm details + start trial */}
         <form action={startTrial} style={{ background: "#fff", borderRadius: 16,
-          border: "0.5px solid #e2e8f0", padding: "1.75rem 1.75rem 2rem" }}>
+          border: "1px solid #e8e6e1", padding: "1.75rem 1.75rem 2rem" }}>
           <div style={{ display: "flex", gap: 12 }}>
             <label style={{ flex: 1 }}><span style={labelStyle}>First name</span>
               <input defaultValue={first} style={field} readOnly />
@@ -42,17 +42,17 @@ export default async function StartTrialPage() {
             <input name="discount" placeholder="Optional" style={field} />
           </label>
 
-          <div style={{ marginTop: 18, padding: "14px 16px", borderRadius: 10, background: "#f6f8fa",
-            border: "0.5px solid #e2e8f0", display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ marginTop: 18, padding: "14px 16px", borderRadius: 10, background: "#f7f6f3",
+            border: "1px solid #e8e6e1", display: "flex", gap: 12, alignItems: "center" }}>
             <span style={{ fontSize: 20 }} aria-hidden="true">🔒</span>
-            <div style={{ fontSize: 13, color: "#5f6b7a" }}>
-              <strong style={{ color: "#1f2933" }}>No card needed today.</strong> Billing is handled securely
+            <div style={{ fontSize: 13, color: "#6b675f" }}>
+              <strong style={{ color: "#141414" }}>No card needed today.</strong> Billing is handled securely
               by Stripe and only starts after your {PLAN.trialDays}-day trial.
             </div>
           </div>
 
           <button type="submit" style={{ width: "100%", marginTop: 18, padding: "13px",
-            borderRadius: 10, border: "none", background: "#7c3aed", color: "#fff",
+            borderRadius: 10, border: "none", background: "#141414", color: "#fff",
             fontWeight: 600, fontSize: 15, cursor: "pointer" }}>
             Start my free trial
           </button>
@@ -75,13 +75,13 @@ export default async function StartTrialPage() {
             ))}
           </ul>
 
-          <div style={{ background: "#fff", border: "0.5px solid #e2e8f0", borderRadius: 12, padding: "1.1rem 1.25rem" }}>
-            <div style={{ fontSize: 13, color: "#6f6685", marginBottom: 6 }}>Plan</div>
+          <div style={{ background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, padding: "1.1rem 1.25rem" }}>
+            <div style={{ fontSize: 13, color: "#6b675f", marginBottom: 6 }}>Plan</div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
               <strong style={{ fontSize: 18 }}>{PLAN.name}</strong>
               <strong style={{ fontSize: 18 }}>$0 due today</strong>
             </div>
-            <div style={{ fontSize: 13, color: "#6f6685", marginTop: 4 }}>
+            <div style={{ fontSize: 13, color: "#6b675f", marginTop: 4 }}>
               {tenant?.name} · {PLAN.price} after the trial
             </div>
           </div>

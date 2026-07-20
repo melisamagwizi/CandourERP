@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { login, type LoginState } from "@/auth/actions";
+import Mark from "@/components/Mark";
 
 const initial: LoginState = { error: null };
 
@@ -11,16 +12,20 @@ export default function LoginPage() {
 
   return (
     <main style={{ maxWidth: 380, margin: "0 auto", padding: "5rem 1.5rem" }}>
-      <h1 style={{ color: "#185fa5", marginBottom: 4 }}>Candour ERP</h1>
-      <p style={{ color: "#5f6b7a", marginTop: 0, marginBottom: 24 }}>Sign in to your workspace.</p>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 22 }}>
+        <Mark size={30} />
+        <span style={{ fontWeight: 600, letterSpacing: "0.18em", fontSize: 15 }}>CANDOUR</span>
+      </div>
+      <h1 style={{ fontSize: 24, margin: "0 0 4px", letterSpacing: "-0.01em" }}>Welcome back</h1>
+      <p style={{ color: "#6b675f", marginTop: 0, marginBottom: 24 }}>Sign in to your workspace.</p>
 
       <form action={action} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <label style={{ fontSize: 13, color: "#5f6b7a" }}>
+        <label style={{ fontSize: 13, color: "#6b675f" }}>
           Email
           <input name="email" type="email" required autoComplete="email" defaultValue="owner@demo.test"
             style={inputStyle} />
         </label>
-        <label style={{ fontSize: 13, color: "#5f6b7a" }}>
+        <label style={{ fontSize: 13, color: "#6b675f" }}>
           Password
           <input name="password" type="password" required autoComplete="current-password"
             style={inputStyle} />
@@ -31,14 +36,14 @@ export default function LoginPage() {
         )}
 
         <button type="submit" disabled={pending}
-          style={{ marginTop: 8, padding: "10px 14px", borderRadius: 8, border: "none",
-            background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer",
+          style={{ marginTop: 8, padding: "10px 14px", borderRadius: 10, border: "none",
+            background: "#141414", color: "#fff", fontWeight: 500, cursor: "pointer",
             opacity: pending ? 0.7 : 1 }}>
           {pending ? "Signing in…" : "Sign in"}
         </button>
       </form>
 
-      <p style={{ fontSize: 13, color: "#5f6b7a", marginTop: 20 }}>
+      <p style={{ fontSize: 13, color: "#6b675f", marginTop: 20 }}>
         New here? <Link href="/signup" style={{ color: "#185fa5" }}>Create your company</Link>
       </p>
     </main>
@@ -47,6 +52,6 @@ export default function LoginPage() {
 
 const inputStyle: React.CSSProperties = {
   display: "block", width: "100%", boxSizing: "border-box", marginTop: 4,
-  padding: "9px 11px", borderRadius: 8, border: "0.5px solid #d9e2ec",
-  fontSize: 14, color: "#1f2933",
+  padding: "9px 11px", borderRadius: 10, border: "1px solid #e8e6e1",
+  fontSize: 14, color: "#141414",
 };

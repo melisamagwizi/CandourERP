@@ -16,7 +16,7 @@ export default function SelectForm({
     <form action={action} ref={ref}>
       {Object.entries(hidden).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
       <select name={name} defaultValue={value} onChange={() => ref.current?.requestSubmit()}
-        style={{ padding: "5px 8px", borderRadius: 6, border: "0.5px solid #d9e2ec", fontSize: 12, color: "#5f6b7a", background: "#fff" }}>
+        style={{ padding: "5px 8px", borderRadius: 6, border: "1px solid #e8e6e1", fontSize: 12, color: "#6b675f", background: "#fff" }}>
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </form>

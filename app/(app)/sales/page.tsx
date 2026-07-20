@@ -15,7 +15,7 @@ const COLUMNS = [
 ] as const;
 
 const money = (m: number) => "$" + (m / 100).toLocaleString(undefined, { maximumFractionDigits: 0 });
-const input: React.CSSProperties = { padding: "9px 11px", borderRadius: 8, border: "0.5px solid #d9e2ec", fontSize: 14, color: "#1f2933" };
+const input: React.CSSProperties = { padding: "9px 11px", borderRadius: 10, border: "1px solid #e8e6e1", fontSize: 14, color: "#141414" };
 const TEMP: Record<string, { bg: string; fg: string; label: string }> = {
   hot: { bg: "#faece7", fg: "#993c1d", label: "Hot" },
   warm: { bg: "#faeeda", fg: "#854f0b", label: "Warm" },
@@ -44,28 +44,28 @@ export default async function SalesPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
         <div>
           <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>Sales pipeline</h1>
-          <p style={{ color: "#5f6b7a", marginTop: 0 }}>Move a deal to <strong>Won</strong> to auto-invoice and convert the lead to a customer.</p>
+          <p style={{ color: "#6b675f", marginTop: 0 }}>Move a deal to <strong>Won</strong> to auto-invoice and convert the lead to a customer.</p>
         </div>
-        <span style={{ fontSize: 13, color: "#5f6b7a" }}>Open pipeline: <strong style={{ color: "#1f2933" }}>{money(weighted)}</strong></span>
+        <span style={{ fontSize: 13, color: "#6b675f" }}>Open pipeline: <strong style={{ color: "#141414" }}>{money(weighted)}</strong></span>
       </div>
 
       <form action={createDeal} style={{ display: "flex", gap: 8, flexWrap: "wrap",
-        background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1rem 1.25rem", margin: "16px 0" }}>
+        background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, padding: "1rem 1.25rem", margin: "16px 0" }}>
         <input aria-label="Deal name" name="name" required placeholder="Deal name" style={{ ...input, flex: 2, minWidth: 160 }} />
         <select name="accountId" style={{ ...input, flex: 1, minWidth: 140 }}>
           <option value="">No customer</option>
           {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
         </select>
         <input aria-label="Value" name="value" type="number" step="0.01" min="0" placeholder="Value" style={{ ...input, width: 120 }} />
-        <SubmitButton style={{ padding: "9px 16px", borderRadius: 8, border: "none", background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add deal</SubmitButton>
+        <SubmitButton style={{ padding: "9px 16px", borderRadius: 10, border: "none", background: "#141414", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add deal</SubmitButton>
       </form>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
         {COLUMNS.map((col) => {
           const items = deals.filter((d) => d.stage === col.key);
           return (
-            <div key={col.key} style={{ background: "#f1f4f8", borderRadius: 12, padding: 10, minHeight: 120 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: col.key === "won" ? "#0f6e56" : "#5f6b7a", marginBottom: 8, fontWeight: 500 }}>
+            <div key={col.key} style={{ background: "#f1f4f8", borderRadius: 14, padding: 10, minHeight: 120 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: col.key === "won" ? "#0f6e56" : "#6b675f", marginBottom: 8, fontWeight: 500 }}>
                 <span>{col.label}</span><span>{items.length}</span>
               </div>
               {items.map((d) => {
@@ -75,14 +75,14 @@ export default async function SalesPage() {
                 const rotting = open && ((d.nextFollowUpAt && d.nextFollowUpAt <= today) || (!d.nextFollowUpAt && days > 7));
                 return (
                   <div key={d.id} style={{ background: col.key === "won" ? "#e1f5ee" : "#fff",
-                    border: "0.5px solid " + (rotting ? "#EF9F27" : col.key === "won" ? "#9fe1cb" : "#e2e8f0"),
+                    border: "1px solid " + (rotting ? "#EF9F27" : col.key === "won" ? "#9fe1cb" : "#e8e6e1"),
                     borderLeft: rotting ? "3px solid #EF9F27" : undefined,
-                    borderRadius: 8, padding: 10, marginBottom: 8 }}>
+                    borderRadius: 10, padding: 10, marginBottom: 8 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
                       <span style={{ fontSize: 13, fontWeight: 500 }}>{d.name}</span>
                       {temp && <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 999, background: TEMP[temp].bg, color: TEMP[temp].fg }}>{TEMP[temp].label}</span>}
                     </div>
-                    <div style={{ fontSize: 12, color: "#5f6b7a" }}>{d.customer ?? "—"} · {money(d.valueMinor)}</div>
+                    <div style={{ fontSize: 12, color: "#6b675f" }}>{d.customer ?? "—"} · {money(d.valueMinor)}</div>
                     <div style={{ display: "flex", gap: 6, alignItems: "center", margin: "4px 0" }}>
                       <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 999, background: d.source === "storefront" ? "#e6f1fb" : "#f1efe8", color: d.source === "storefront" ? "#185fa5" : "#5f5e5a" }}>{d.source}</span>
                       {rotting && <span style={{ fontSize: 10, color: "#854f0b" }}>⏰ follow up</span>}

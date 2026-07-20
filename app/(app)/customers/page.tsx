@@ -8,7 +8,7 @@ import { createCustomer } from "@/data/actions";
 export const dynamic = "force-dynamic";
 
 const input: React.CSSProperties = {
-  padding: "9px 11px", borderRadius: 8, border: "0.5px solid #d9e2ec", fontSize: 14, color: "#1f2933",
+  padding: "9px 11px", borderRadius: 10, border: "1px solid #e8e6e1", fontSize: 14, color: "#141414",
 };
 
 export default async function CustomersPage() {
@@ -20,24 +20,24 @@ export default async function CustomersPage() {
   return (
     <div>
       <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>Customers</h1>
-      <p style={{ color: "#5f6b7a", marginTop: 0 }}>Your companies and who to bill.</p>
+      <p style={{ color: "#6b675f", marginTop: 0 }}>Your companies and who to bill.</p>
 
       <form action={createCustomer} style={{ display: "flex", gap: 8, flexWrap: "wrap",
-        background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 16 }}>
+        background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, padding: "1rem 1.25rem", marginBottom: 16 }}>
         <input aria-label="Company name" name="name" required placeholder="Company name" style={{ ...input, flex: 2, minWidth: 160 }} />
         <input aria-label="Billing email" name="billingEmail" type="email" placeholder="Billing email" style={{ ...input, flex: 2, minWidth: 160 }} />
         <input aria-label="WhatsApp number" name="whatsapp" placeholder="WhatsApp number" style={{ ...input, flex: 1, minWidth: 130 }} />
-        <SubmitButton style={{ padding: "9px 16px", borderRadius: 8, border: "none",
-          background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add</SubmitButton>
+        <SubmitButton style={{ padding: "9px 16px", borderRadius: 10, border: "none",
+          background: "#141414", color: "#fff", fontWeight: 500, cursor: "pointer" }}>Add</SubmitButton>
       </form>
 
-      <section style={{ background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, overflow: "hidden" }}>
-        {rows.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#5f6b7a" }}>No customers yet — add your first above.</div>}
+      <section style={{ background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, overflow: "hidden" }}>
+        {rows.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#6b675f" }}>No customers yet — add your first above.</div>}
         {rows.map((c) => (
           <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center",
-            padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6" }}>
+            padding: "11px 1.25rem", borderTop: "1px solid #f1efec" }}>
             <span style={{ fontWeight: 500 }}>{c.name}</span>
-            <span style={{ fontSize: 13, color: "#5f6b7a" }}>{c.billingEmail ?? "—"}{c.whatsapp ? ` · ${c.whatsapp}` : ""}</span>
+            <span style={{ fontSize: 13, color: "#6b675f" }}>{c.billingEmail ?? "—"}{c.whatsapp ? ` · ${c.whatsapp}` : ""}</span>
           </div>
         ))}
       </section>

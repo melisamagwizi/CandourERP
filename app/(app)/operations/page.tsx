@@ -8,10 +8,10 @@ import { createTask, toggleTask, createMeeting, createObjective } from "@/data/a
 export const dynamic = "force-dynamic";
 
 const input: React.CSSProperties = {
-  padding: "9px 11px", borderRadius: 8, border: "0.5px solid #d9e2ec", fontSize: 14, color: "#1f2933",
+  padding: "9px 11px", borderRadius: 10, border: "1px solid #e8e6e1", fontSize: 14, color: "#141414",
 };
-const card: React.CSSProperties = { background: "#fff", border: "0.5px solid #d9e2ec", borderRadius: 12, padding: "1rem 1.25rem" };
-const addBtn: React.CSSProperties = { padding: "9px 14px", borderRadius: 8, border: "none", background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" };
+const card: React.CSSProperties = { background: "#fff", border: "1px solid #e8e6e1", borderRadius: 14, padding: "1rem 1.25rem" };
+const addBtn: React.CSSProperties = { padding: "9px 14px", borderRadius: 10, border: "none", background: "#141414", color: "#fff", fontWeight: 500, cursor: "pointer" };
 
 export default async function OperationsPage() {
   const session = await requireAuth();
@@ -29,7 +29,7 @@ export default async function OperationsPage() {
   return (
     <div>
       <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>Operations &amp; meetings</h1>
-      <p style={{ color: "#5f6b7a", marginTop: 0 }}>Run the day-to-day — and tie every meeting to a goal.</p>
+      <p style={{ color: "#6b675f", marginTop: 0 }}>Run the day-to-day — and tie every meeting to a goal.</p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, marginTop: 16 }}>
 
@@ -40,17 +40,17 @@ export default async function OperationsPage() {
             <input aria-label="New task" name="title" required placeholder="New task" style={{ ...input, flex: 1 }} />
             <SubmitButton style={addBtn}>Add</SubmitButton>
           </form>
-          {data.tasks.length === 0 && <div style={{ color: "#5f6b7a", fontSize: 13 }}>No tasks yet.</div>}
+          {data.tasks.length === 0 && <div style={{ color: "#6b675f", fontSize: 13 }}>No tasks yet.</div>}
           {data.tasks.map((t) => (
-            <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderTop: "0.5px solid #eef2f6" }}>
+            <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderTop: "1px solid #f1efec" }}>
               <form action={toggleTask}>
                 <input type="hidden" name="taskId" value={t.id} />
                 <button type="submit" aria-label="Toggle done" style={{ width: 19, height: 19, borderRadius: "50%",
-                  border: "1.5px solid " + (t.status === "done" ? "#1d9e75" : "#cbd5e0"),
+                  border: "1.5px solid " + (t.status === "done" ? "#1d9e75" : "#d6d3cc"),
                   background: t.status === "done" ? "#1d9e75" : "#fff", color: "#fff", cursor: "pointer", fontSize: 11 }}>{t.status === "done" ? "✓" : ""}</button>
               </form>
               <span style={{ fontSize: 14, textDecoration: t.status === "done" ? "line-through" : "none",
-                color: t.status === "done" ? "#6f6685" : "#1f2933" }}>{t.title}</span>
+                color: t.status === "done" ? "#6b675f" : "#141414" }}>{t.title}</span>
             </div>
           ))}
         </section>
@@ -63,10 +63,10 @@ export default async function OperationsPage() {
             <input aria-label="Target" name="target" placeholder="Target" style={{ ...input, flex: 1, minWidth: 70 }} />
             <SubmitButton style={addBtn}>Add</SubmitButton>
           </form>
-          {data.objectives.length === 0 && <div style={{ color: "#5f6b7a", fontSize: 13 }}>Add a goal so meetings can link to it.</div>}
+          {data.objectives.length === 0 && <div style={{ color: "#6b675f", fontSize: 13 }}>Add a goal so meetings can link to it.</div>}
           {data.objectives.map((o) => (
-            <div key={o.id} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderTop: "0.5px solid #eef2f6", fontSize: 14 }}>
-              <span>{o.name}</span><span style={{ color: "#5f6b7a", fontSize: 13 }}>{o.target ?? "—"}</span>
+            <div key={o.id} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderTop: "1px solid #f1efec", fontSize: 14 }}>
+              <span>{o.name}</span><span style={{ color: "#6b675f", fontSize: 13 }}>{o.target ?? "—"}</span>
             </div>
           ))}
         </section>
@@ -83,12 +83,12 @@ export default async function OperationsPage() {
             </select>
             <SubmitButton style={addBtn}>Schedule</SubmitButton>
           </form>
-          {data.meetings.length === 0 && <div style={{ color: "#5f6b7a", fontSize: 13 }}>No meetings scheduled.</div>}
+          {data.meetings.length === 0 && <div style={{ color: "#6b675f", fontSize: 13 }}>No meetings scheduled.</div>}
           {data.meetings.map((m) => (
-            <div key={m.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderTop: "0.5px solid #eef2f6" }}>
+            <div key={m.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderTop: "1px solid #f1efec" }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 500 }}>{m.title}</div>
-                <div style={{ fontSize: 12, color: "#5f6b7a" }}>{m.startsAt ? new Date(m.startsAt).toLocaleString() : "No date"}</div>
+                <div style={{ fontSize: 12, color: "#6b675f" }}>{m.startsAt ? new Date(m.startsAt).toLocaleString() : "No date"}</div>
               </div>
               {m.kpi && <span style={{ fontSize: 11, padding: "3px 9px", borderRadius: 999, background: "#e6f1fb", color: "#185fa5" }}>◎ {m.kpi}</span>}
             </div>

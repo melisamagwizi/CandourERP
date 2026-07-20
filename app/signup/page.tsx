@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { signup, type SignupState } from "@/auth/signup";
 import { businessModules } from "@/modules";
+import Mark from "@/components/Mark";
 
 const initial: SignupState = { error: null };
 
 const input: React.CSSProperties = {
   display: "block", width: "100%", boxSizing: "border-box", marginTop: 4,
-  padding: "9px 11px", borderRadius: 8, border: "0.5px solid #d9e2ec", fontSize: 14, color: "#1f2933",
+  padding: "9px 11px", borderRadius: 10, border: "1px solid #e8e6e1", fontSize: 14, color: "#141414",
 };
-const label: React.CSSProperties = { fontSize: 13, color: "#5f6b7a", display: "block", marginBottom: 12 };
+const label: React.CSSProperties = { fontSize: 13, color: "#6b675f", display: "block", marginBottom: 12 };
 
 const STEPS = ["Your business", "Your goal", "Your modules", "Your login"];
 const GOALS = [
@@ -38,11 +39,15 @@ export default function DiscoveryWizard() {
 
   return (
     <main style={{ maxWidth: 500, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <h1 style={{ color: "#185fa5", marginBottom: 4 }}>Let&apos;s set up Candour around your business</h1>
-      <p style={{ color: "#5f6b7a", marginTop: 0, marginBottom: 18 }}>Step {step} of 4 · {STEPS[step - 1]}</p>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+        <Mark size={30} />
+        <span style={{ fontWeight: 600, letterSpacing: "0.18em", fontSize: 15 }}>CANDOUR</span>
+      </div>
+      <h1 style={{ fontSize: 24, margin: "0 0 4px", letterSpacing: "-0.01em" }}>Let&apos;s set up Candour around your business</h1>
+      <p style={{ color: "#6b675f", marginTop: 0, marginBottom: 18 }}>Step {step} of 4 · {STEPS[step - 1]}</p>
 
       <div style={{ display: "flex", gap: 6, marginBottom: 24 }}>
-        {STEPS.map((_, i) => <div key={i} style={{ flex: 1, height: 5, borderRadius: 3, background: i < step ? "#185fa5" : "#e2e8f0" }} />)}
+        {STEPS.map((_, i) => <div key={i} style={{ flex: 1, height: 5, borderRadius: 3, background: i < step ? "#185fa5" : "#e8e6e1" }} />)}
       </div>
 
       <form action={action}>
@@ -61,7 +66,7 @@ export default function DiscoveryWizard() {
           </label>
           <label style={label}>In one line, what do you do?
             <input name="tagline" value={v.tagline} onChange={set("tagline")} placeholder="We help small firms grow with expert advice" style={input} />
-            <span style={{ fontSize: 11, color: "#6f6685" }}>Becomes your mission statement.</span>
+            <span style={{ fontSize: 11, color: "#6b675f" }}>Becomes your mission statement.</span>
           </label>
           <label style={label}>Currency
             <input name="currency" value={v.currency} onChange={set("currency")} maxLength={3} style={{ ...input, width: 110 }} />
@@ -70,7 +75,7 @@ export default function DiscoveryWizard() {
 
         {/* Step 2 — goal */}
         <div style={{ display: step === 2 ? "block" : "none" }}>
-          <p style={{ fontSize: 14, color: "#5f6b7a", marginTop: 0 }}>We&apos;ll turn this into your <strong>Strategy</strong> — vision and starter KPIs.</p>
+          <p style={{ fontSize: 14, color: "#6b675f", marginTop: 0 }}>We&apos;ll turn this into your <strong>Strategy</strong> — vision and starter KPIs.</p>
           <label style={label}>What&apos;s your #1 goal right now?
             <select name="goal" value={v.goal} onChange={set("goal")} style={input}>
               {GOALS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
@@ -83,24 +88,24 @@ export default function DiscoveryWizard() {
 
         {/* Step 3 — modules */}
         <div style={{ display: step === 3 ? "block" : "none" }}>
-          <p style={{ fontSize: 14, color: "#5f6b7a", marginTop: 0 }}>Pick what you&apos;ll use now. You can switch any on or off later — no clutter.</p>
+          <p style={{ fontSize: 14, color: "#6b675f", marginTop: 0 }}>Pick what you&apos;ll use now. You can switch any on or off later — no clutter.</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             {businessModules.map((m) => {
               const on = mods.includes(m.slug);
               return (
                 <button type="button" key={m.slug} onClick={() => toggleMod(m.slug)}
                   style={{ textAlign: "left", padding: "10px 12px", borderRadius: 10, cursor: "pointer",
-                    border: "1.5px solid " + (on ? "#185fa5" : "#e2e8f0"), background: on ? "#e6f1fb" : "#fff" }}>
+                    border: "1.5px solid " + (on ? "#185fa5" : "#e8e6e1"), background: on ? "#e6f1fb" : "#fff" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 13, fontWeight: 500, color: on ? "#185fa5" : "#1f2933" }}>{m.name}</span>
-                    <span style={{ fontSize: 12, color: on ? "#185fa5" : "#cbd5e0" }}>{on ? "✓" : "+"}</span>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: on ? "#185fa5" : "#141414" }}>{m.name}</span>
+                    <span style={{ fontSize: 12, color: on ? "#185fa5" : "#d6d3cc" }}>{on ? "✓" : "+"}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: "#6f6685", marginTop: 2 }}>{m.desc}</div>
+                  <div style={{ fontSize: 11, color: "#6b675f", marginTop: 2 }}>{m.desc}</div>
                 </button>
               );
             })}
           </div>
-          <p style={{ fontSize: 12, color: "#6f6685", marginTop: 10 }}>{mods.length} selected</p>
+          <p style={{ fontSize: 12, color: "#6b675f", marginTop: 10 }}>{mods.length} selected</p>
         </div>
 
         {/* Step 4 — account */}
@@ -126,12 +131,12 @@ export default function DiscoveryWizard() {
         </div>
       </form>
 
-      <p style={{ fontSize: 13, color: "#5f6b7a", marginTop: 24 }}>
+      <p style={{ fontSize: 13, color: "#6b675f", marginTop: 24 }}>
         Already have a workspace? <Link href="/login" style={{ color: "#185fa5" }}>Sign in</Link>
       </p>
     </main>
   );
 }
 
-const btnPrimary: React.CSSProperties = { padding: "10px 18px", borderRadius: 8, border: "none", background: "#185fa5", color: "#fff", fontWeight: 500, cursor: "pointer" };
-const btnGhost: React.CSSProperties = { padding: "10px 18px", borderRadius: 8, border: "0.5px solid #d9e2ec", background: "#fff", color: "#1f2933", cursor: "pointer" };
+const btnPrimary: React.CSSProperties = { padding: "10px 18px", borderRadius: 10, border: "none", background: "#141414", color: "#fff", fontWeight: 500, cursor: "pointer" };
+const btnGhost: React.CSSProperties = { padding: "10px 18px", borderRadius: 10, border: "1px solid #e8e6e1", background: "#fff", color: "#141414", cursor: "pointer" };

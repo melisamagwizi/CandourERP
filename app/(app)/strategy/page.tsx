@@ -23,13 +23,13 @@ export default async function StrategyPage() {
   return (
     <div>
       <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>Strategy</h1>
-      <p style={{ color: "#5f6b7a", marginTop: 0 }}>Where you&apos;re headed, and how you&apos;ll know you&apos;re winning.</p>
+      <p style={{ color: "#6b675f", marginTop: 0 }}>Where you&apos;re headed, and how you&apos;ll know you&apos;re winning.</p>
 
       <form action={updateStrategy} style={{ ...card, marginTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
-        <label style={{ fontSize: 13, color: "#5f6b7a" }}>Vision
+        <label style={{ fontSize: 13, color: "#6b675f" }}>Vision
           <textarea name="vision" defaultValue={tenant?.vision ?? ""} rows={2} placeholder="Where the business is going…" style={{ ...input, width: "100%", boxSizing: "border-box", marginTop: 4, resize: "vertical" }} />
         </label>
-        <label style={{ fontSize: 13, color: "#5f6b7a" }}>Mission
+        <label style={{ fontSize: 13, color: "#6b675f" }}>Mission
           <textarea name="mission" defaultValue={tenant?.mission ?? ""} rows={2} placeholder="Why you exist and who you serve…" style={{ ...input, width: "100%", boxSizing: "border-box", marginTop: 4, resize: "vertical" }} />
         </label>
         <SubmitButton style={{ ...primaryBtn, alignSelf: "flex-start" }}>Save</SubmitButton>
@@ -43,13 +43,13 @@ export default async function StrategyPage() {
       </form>
 
       <section style={{ ...card, padding: 0 }}>
-        {objectives.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#5f6b7a" }}>Add your first objective above.</div>}
+        {objectives.length === 0 && <div style={{ padding: "1rem 1.25rem", color: "#6b675f" }}>Add your first objective above.</div>}
         {objectives.map((o) => {
           const rag = RAG[o.status];
           return (
-            <div key={o.id} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "0.5px solid #eef2f6" }}>
+            <div key={o.id} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 12, alignItems: "center", padding: "11px 1.25rem", borderTop: "1px solid #f1efec" }}>
               <span style={{ fontWeight: 500 }}>{o.name}</span>
-              <span style={{ fontSize: 13, color: "#5f6b7a" }}>{o.target ?? "—"}</span>
+              <span style={{ fontSize: 13, color: "#6b675f" }}>{o.target ?? "—"}</span>
               <span style={{ fontSize: 11, padding: "3px 9px", borderRadius: 999, background: rag.bg, color: rag.fg }}>{rag.label}</span>
               <SelectForm hidden={{ objectiveId: o.id }} name="status" value={o.status} action={setObjectiveStatus}
                 options={[{ value: "on_track", label: "On track" }, { value: "at_risk", label: "At risk" }, { value: "behind", label: "Behind" }]} />

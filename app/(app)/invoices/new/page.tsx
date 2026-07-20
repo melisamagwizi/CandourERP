@@ -24,7 +24,7 @@ export default async function NewInvoicePage() {
     return (
       <div>
         <h1 style={{ fontSize: 22 }}>New invoice</h1>
-        <p style={{ color: "#5f6b7a" }}>
+        <p style={{ color: "#6b675f" }}>
           First add at least one{" "}
           {accounts.length === 0 && <Link href="/customers" style={{ color: "#185fa5" }}>customer</Link>}
           {accounts.length === 0 && products.length === 0 && " and one "}
